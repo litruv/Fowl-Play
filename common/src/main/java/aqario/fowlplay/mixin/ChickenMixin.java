@@ -1,5 +1,5 @@
 package aqario.fowlplay.mixin;
-
+import net.minecraft.core.registries.BuiltInRegistries;
 import aqario.fowlplay.common.entity.ChickenVariant;
 import aqario.fowlplay.common.util.ChickenAnimationHolder;
 import aqario.fowlplay.core.FowlPlayBuiltInRegistries;
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = Chicken.class, priority = 999)
-public abstract class ChickenMixin extends Animal implements VariantHolder<Holder<ChickenVariant>>, ChickenAnimationHolder {
+public abstract class ChickenMixin extends Animal implements ChickenAnimationHolder {
     @Unique
     private final AnimationState fowlplay$standingState = new AnimationState();
     @Unique
@@ -35,9 +35,9 @@ public abstract class ChickenMixin extends Animal implements VariantHolder<Holde
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
         switch(spawnReason) {
             case BREEDING ->
-                FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getHolder(ChickenVariant.WHITE).ifPresent(this::setVariant);
+                this.setVariant(FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getOrThrow(ChickenVariant.WHITE));
             case CHUNK_GENERATION ->
-                FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getHolder(ChickenVariant.RED_JUNGLEFOWL).ifPresent(this::setVariant);
+                this.setVariant(FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getOrThrow(ChickenVariant.RED_JUNGLEFOWL));
             default -> FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getRandom(world.getRandom()).ifPresent(this::setVariant);
         }
         return super.finalizeSpawn(world, difficulty, spawnReason, entityData);
@@ -59,13 +59,11 @@ public abstract class ChickenMixin extends Animal implements VariantHolder<Holde
 //        cir.setReturnValue(chicken);
 //    }
 
-    @Override
-    public Holder<ChickenVariant> getVariant() {
+        public Holder<ChickenVariant> getVariant() {
         return DataAttachmentHelper.getChickenVariant((Chicken) (Object) this);
     }
 
-    @Override
-    public void setVariant(Holder<ChickenVariant> variant) {
+        public void setVariant(Holder<ChickenVariant> variant) {
         DataAttachmentHelper.setChickenVariant((Chicken) (Object) this, variant);
     }
 

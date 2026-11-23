@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -24,34 +24,32 @@ public class SparrowSpawner implements CustomSpawner {
 
     @SuppressWarnings("deprecation")
     @Override
-    public int tick(ServerLevel world, boolean spawnMonsters, boolean spawnAnimals) {
+    public void tick(ServerLevel world, boolean spawnAnimals) {
         if (!spawnAnimals
-            || !world.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
+            || !world.getGameRules().get(GameRules.SPAWN_MOBS)
             || FowlPlayConfig.getInstance().sparrowSpawnWeight <= 0
         ) {
-            return 0;
+            return;
         }
         this.ticksUntilNextSpawn--;
         if (this.ticksUntilNextSpawn > 0) {
-            return 0;
+            return;
         }
         this.ticksUntilNextSpawn = SPAWN_COOLDOWN;
         Player player = world.getRandomPlayer();
         if (player == null) {
-            return 0;
+            return;
         }
         RandomSource random = world.random;
         int x = (8 + random.nextInt(24)) * (random.nextBoolean() ? -1 : 1);
         int z = (8 + random.nextInt(24)) * (random.nextBoolean() ? -1 : 1);
         BlockPos pos = player.blockPosition().offset(x, 0, z);
         if (!world.hasChunksAt(pos.getX() - 10, pos.getZ() - 10, pos.getX() + 10, pos.getZ() + 10)) {
-            return 0;
+            return;
         }
         if (world.isCloseToVillage(pos, 2)) {
-            return this.spawnNearPoi(world, pos);
+            this.spawnNearPoi(world, pos);
         }
-
-        return 0;
     }
 
     private int spawnNearPoi(ServerLevel world, BlockPos pos) {
@@ -70,12 +68,12 @@ public class SparrowSpawner implements CustomSpawner {
     }
 
     private int spawn(BlockPos pos, ServerLevel world) {
-        SparrowEntity sparrow = FowlPlayEntityTypes.SPARROW.get().create(world);
+        SparrowEntity sparrow = FowlPlayEntityTypes.SPARROW.get().create(world, EntitySpawnReason.NATURAL);
         if (sparrow == null) {
             return 0;
         }
         sparrow.finalizeSpawn(world, world.getCurrentDifficultyAt(pos), EntitySpawnReason.NATURAL, null);
-        sparrow.moveTo(pos, 0.0F, 0.0F);
+        sparrow.setPos(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
         world.addFreshEntityWithPassengers(sparrow);
         return 1;
     }

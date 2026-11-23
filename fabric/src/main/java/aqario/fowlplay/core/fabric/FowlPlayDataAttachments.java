@@ -15,7 +15,7 @@ public class FowlPlayDataAttachments {
     public static final AttachmentType<Holder<ChickenVariant>> CHICKEN_VARIANT = register(
         "chicken_variant",
         builder -> builder
-            .initializer(() -> FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getHolderOrThrow(ChickenVariant.WHITE))
+            .initializer(() -> FowlPlayBuiltInRegistries.CHICKEN_VARIANT.getOrThrow(ChickenVariant.WHITE))
             .persistent(FowlPlayBuiltInRegistries.CHICKEN_VARIANT.holderByNameCodec())
             .syncWith(
                 ChickenVariant.PACKET_CODEC,

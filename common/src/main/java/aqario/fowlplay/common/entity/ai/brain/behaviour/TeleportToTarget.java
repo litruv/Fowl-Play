@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 
@@ -27,23 +27,23 @@ public class TeleportToTarget extends ExtendedBehaviour<BirdEntity> {
 
     @Override
     protected boolean shouldKeepRunning(BirdEntity entity) {
-        return BrainUtils.hasMemory(entity, FowlPlayMemoryTypes.TELEPORT_TARGET.get());
+        return BrainUtil.hasMemory(entity, FowlPlayMemoryTypes.TELEPORT_TARGET.get());
     }
 
     @Override
     protected void tick(BirdEntity entity) {
         Brain<?> brain = entity.getBrain();
         if(this.tryTeleport(entity, brain)) {
-            BrainUtils.clearMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get());
+            BrainUtil.clearMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get());
         }
     }
 
     private boolean tryTeleport(BirdEntity entity, Brain<?> brain) {
-        if(!BrainUtils.hasMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get())) {
+        if(!BrainUtil.hasMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get())) {
             return false;
         }
         // noinspection ConstantConditions
-        Entity target = BrainUtils.getMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get()).entity();
+        Entity target = BrainUtil.getMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get()).entity();
         BlockPos pos = target.blockPosition();
 
         for(int i = 0; i < 10; i++) {
@@ -65,7 +65,7 @@ public class TeleportToTarget extends ExtendedBehaviour<BirdEntity> {
             return false;
         }
 
-        entity.moveTo(x + 0.5, y, z + 0.5, entity.getYRot(), entity.getXRot());
+        entity.setPos(x + 0.5, y, z + 0.5);
         entity.getNavigation().stop();
         return true;
     }

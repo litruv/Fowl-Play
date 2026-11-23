@@ -1,5 +1,6 @@
-package aqario.fowlplay.common.entity;
-
+package aqario.fowlplay.common.entity;import net.minecraft.core.Holder;import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.CompositeBehaviours;
@@ -25,7 +26,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -45,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class RobinEntity extends FlyingBirdEntity implements BirdBrain<RobinEntity>, VariantHolder<RobinEntity.Variant> {
+public class RobinEntity extends FlyingBirdEntity implements BirdBrain<RobinEntity> {
     private static final EntityDataAccessor<String> VARIANT = SynchedEntityData.defineId(RobinEntity.class, EntityDataSerializers.STRING);
 
     public RobinEntity(EntityType<? extends RobinEntity> entityType, Level world) {
@@ -58,27 +58,25 @@ public class RobinEntity extends FlyingBirdEntity implements BirdBrain<RobinEnti
         builder.define(VARIANT, /*Util.getRandom(Variant.VARIANTS, random).toString()*/ Variant.AMERICAN.toString());
     }
 
-    @Override
     public Variant getVariant() {
         return Variant.valueOf(this.entityData.get(VARIANT));
     }
 
-    @Override
     public void setVariant(Variant variant) {
         this.entityData.set(VARIANT, variant.toString());
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putString("variant", this.getVariant().toString());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
         if(nbt.contains("variant")) {
-            this.setVariant(Variant.valueOf(nbt.getString("variant")));
+            this.setVariant(Variant.valueOf(nbt.getString("variant").orElse("")));
         }
     }
 
@@ -89,7 +87,7 @@ public class RobinEntity extends FlyingBirdEntity implements BirdBrain<RobinEnti
 
     @Override
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.ROBIN_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.ROBIN_FOOD));
     }
 
     @Override

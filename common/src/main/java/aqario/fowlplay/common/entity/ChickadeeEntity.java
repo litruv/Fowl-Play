@@ -1,5 +1,5 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.core.registries.BuiltInRegistries;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.CompositeBehaviours;
@@ -52,7 +52,7 @@ public class ChickadeeEntity extends FlyingBirdEntity implements BirdBrain<Chick
 
     @Override
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.CHICKADEE_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.CHICKADEE_FOOD));
     }
 
     @Override

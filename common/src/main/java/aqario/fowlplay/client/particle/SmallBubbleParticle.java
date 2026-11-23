@@ -4,16 +4,17 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 import net.minecraft.tags.FluidTags;
 
-public class SmallBubbleParticle extends TextureSheetParticle {
+public class SmallBubbleParticle extends SingleQuadParticle {
     private final SpriteSet spriteProvider;
     protected int popAge;
     protected int maxPopAge;
     protected boolean shouldPop;
 
     public SmallBubbleParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteSet spriteProvider) {
-        super(world, x, y, z);
+        super(world, x, y, z, velocityX, velocityY, velocityZ, spriteProvider.first());
         this.spriteProvider = spriteProvider;
         this.gravity = -0.05F;
         this.friction = 0.95F;
@@ -63,8 +64,8 @@ public class SmallBubbleParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.OPAQUE;
     }
 
     public static class Factory implements ParticleProvider<SimpleParticleType> {
@@ -75,7 +76,7 @@ public class SmallBubbleParticle extends TextureSheetParticle {
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
+        public Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i, RandomSource random) {
             return new SmallBubbleParticle(clientWorld, d, e, f, g, h, i, this.spriteProvider);
         }
     }

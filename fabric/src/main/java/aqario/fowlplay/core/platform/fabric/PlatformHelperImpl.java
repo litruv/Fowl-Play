@@ -66,7 +66,7 @@ public class PlatformHelperImpl {
     }
 
     public static <T extends Entity> Supplier<EntityType<T>> registerEntityType(String id, Supplier<EntityType<T>> entityType) {
-        EntityType<T> registry = Registry.register(BuiltInRegistries.ENTITY_TYPE, id, entityType.get());
+        EntityType<T> registry = Registry.register(BuiltInRegistries.ENTITY_TYPE, FowlPlay.id(id), entityType.get());
         return () -> registry;
     }
 
@@ -87,8 +87,7 @@ public class PlatformHelperImpl {
     }
 
     public static Supplier<ExtendedSchedule> registerSchedule(String id, Supplier<ExtendedSchedule> schedule) {
-        ExtendedSchedule registry = Registry.register(BuiltInRegistries.SCHEDULE, FowlPlay.id(id), schedule.get());
-        return () -> registry;
+        return schedule;
     }
 
     public static <T extends Sensor<?>> Supplier<SensorType<T>> registerSensorType(String id, Supplier<SensorType<T>> sensorType) {

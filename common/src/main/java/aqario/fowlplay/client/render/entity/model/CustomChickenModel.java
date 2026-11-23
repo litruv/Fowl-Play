@@ -1,17 +1,24 @@
 package aqario.fowlplay.client.render.entity.model;
 
 import aqario.fowlplay.client.render.entity.animation.ChickenAnimations;
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
 import aqario.fowlplay.common.util.ChickenAnimationHolder;
 import aqario.fowlplay.core.FowlPlay;
-import net.minecraft.client.model.HierarchicalModel;
+import net.minecraft.client.animation.AnimationDefinition;
+import net.minecraft.client.animation.KeyframeAnimation;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 
-public class CustomChickenModel extends HierarchicalModel<Chicken> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class CustomChickenModel extends EntityModel<BirdRenderState<Chicken>> {
     public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(FowlPlay.id("chicken"), "main");
     public final ModelPart root;
     public final ModelPart body;
@@ -25,7 +32,10 @@ public class CustomChickenModel extends HierarchicalModel<Chicken> {
     public final ModelPart rightLeg;
     public final ModelPart tail;
 
+    private final Map<AnimationDefinition, KeyframeAnimation> baked = new HashMap<>();
+
     public CustomChickenModel(ModelPart root) {
+        super(root);
         this.root = root.getChild("root");
         this.body = this.root.getChild("body");
         this.head = this.body.getChild("head");
@@ -82,8 +92,13 @@ public class CustomChickenModel extends HierarchicalModel<Chicken> {
     }
 
     @Override
-    public void setupAnim(Chicken chicken, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.root().getAllParts().forEach(ModelPart::resetPose);
+    public void setupAnim(BirdRenderState<Chicken> state) {
+        this.resetPose();
+
+        Chicken chicken = state.entity;
+        float netHeadYaw = Mth.wrapDegrees(state.yRot - state.bodyRot);
+        float headPitch = state.xRot;
+
         this.updateHeadRotation(netHeadYaw, headPitch);
         if(chicken.onGround() || chicken.isInWater()) {
             this.leftWingOpen.visible = false;
@@ -99,11 +114,19 @@ public class CustomChickenModel extends HierarchicalModel<Chicken> {
         }
 
         if(chicken.onGround() && !chicken.isInWater()) {
-            this.animateWalk(ChickenAnimations.WALKING, limbSwing, limbSwingAmount, 3F, 3F);
+            this.animateWalk(ChickenAnimations.WALKING, state.walkAnimationPos, state.walkAnimationSpeed, 3F, 3F);
         }
-        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getStandingState(), ChickenAnimations.STANDING, ageInTicks);
-        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getFlappingState(), ChickenAnimations.FLAPPING, ageInTicks);
-        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getFloatingState(), ChickenAnimations.SWIMMING, ageInTicks);
+        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getStandingState(), ChickenAnimations.STANDING, state.ageInTicks);
+        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getFlappingState(), ChickenAnimations.FLAPPING, state.ageInTicks);
+        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getFloatingState(), ChickenAnimations.SWIMMING, state.ageInTicks);
+    }
+
+    protected void animate(AnimationState animationState, AnimationDefinition definition, float ageInTicks) {
+        this.baked.computeIfAbsent(definition, d -> d.bake(this.root())).apply(animationState, ageInTicks);
+    }
+
+    protected void animateWalk(AnimationDefinition definition, float limbSwing, float limbSwingAmount, float maxRotation, float maxAnimationSpeed) {
+        this.baked.computeIfAbsent(definition, d -> d.bake(this.root())).applyWalk(limbSwing, limbSwingAmount, maxRotation, maxAnimationSpeed);
     }
 
     protected void updateHeadRotation(float headYaw, float headPitch) {
@@ -111,10 +134,5 @@ public class CustomChickenModel extends HierarchicalModel<Chicken> {
         headPitch = Mth.clamp(headPitch, -25.0F, 45.0F);
         this.head.yRot = headYaw * (float) (Math.PI / 180.0);
         this.head.xRot = headPitch * (float) (Math.PI / 180.0);
-    }
-
-    @Override
-    public ModelPart root() {
-        return this.root;
     }
 }

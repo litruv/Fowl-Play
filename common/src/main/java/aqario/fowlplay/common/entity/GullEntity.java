@@ -1,5 +1,6 @@
-package aqario.fowlplay.common.entity;
-
+package aqario.fowlplay.common.entity;import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.*;
@@ -18,7 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
@@ -60,7 +61,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class GullEntity extends TrustingBirdEntity implements BirdBrain<GullEntity>, VariantHolder<Holder<GullVariant>> {
+public class GullEntity extends TrustingBirdEntity implements BirdBrain<GullEntity> {
     private static final EntityDataAccessor<Holder<GullVariant>> VARIANT = SynchedEntityData.defineId(
         GullEntity.class,
         FowlPlayEntityDataSerializers.GULL_VARIANT
@@ -121,31 +122,29 @@ public class GullEntity extends TrustingBirdEntity implements BirdBrain<GullEnti
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(VARIANT, FowlPlayBuiltInRegistries.GULL_VARIANT.getHolderOrThrow(GullVariant.HERRING));
+        builder.define(VARIANT, FowlPlayBuiltInRegistries.GULL_VARIANT.getOrThrow(GullVariant.HERRING));
     }
 
-    @Override
     public Holder<GullVariant> getVariant() {
         return this.entityData.get(VARIANT);
     }
 
-    @Override
     public void setVariant(Holder<GullVariant> variant) {
         this.entityData.set(VARIANT, variant);
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putString("variant", this.getVariant().unwrapKey().orElse(GullVariant.HERRING).location().toString());
+        nbt.putString("variant", this.getVariant().unwrapKey().orElse(GullVariant.HERRING).identifier().toString());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        Optional.ofNullable(ResourceLocation.tryParse(nbt.getString("variant")))
+        Optional.ofNullable(Identifier.tryParse(nbt.getString("variant").orElse("")))
             .map(variant -> ResourceKey.create(FowlPlayRegistries.GULL_VARIANT, variant))
-            .flatMap(FowlPlayBuiltInRegistries.GULL_VARIANT::getHolder)
+            .flatMap(FowlPlayBuiltInRegistries.GULL_VARIANT::get)
             .ifPresent(this::setVariant);
     }
 
@@ -155,7 +154,7 @@ public class GullEntity extends TrustingBirdEntity implements BirdBrain<GullEnti
     }
 
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.GULL_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.GULL_FOOD));
     }
 
     @Override

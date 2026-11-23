@@ -1,11 +1,11 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.core.FowlPlayEntityDataSerializers;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityEvent;
@@ -37,36 +37,22 @@ public abstract class TrustingBirdEntity extends FlyingBirdEntity {
         builder.define(TRUSTED, new ArrayList<>());
     }
 
-    protected ListTag toNbtList(List<UUID> uuids) {
-        ListTag nbtList = new ListTag();
-
-        for(UUID uuid : uuids) {
-            nbtList.add(NbtUtils.createUUID(uuid));
-        }
-
-        return nbtList;
-    }
-
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.put("trusted", this.toNbtList(this.getTrustedUuids()));
+        var trusted = nbt.list("trusted", UUIDUtil.CODEC);
+        this.getTrustedUuids().forEach(trusted::add);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        if(nbt.contains("trusted")) {
-            ListTag list = (ListTag) nbt.get("trusted");
-            if(list != null) {
-                list.forEach(element -> this.addTrustedUuid(NbtUtils.loadUUID(element)));
-            }
-        }
+        nbt.listOrEmpty("trusted", UUIDUtil.CODEC).forEach(this::addTrustedUuid);
     }
 
     @Override
-    protected void pickUpItem(ItemEntity item) {
-        super.pickUpItem(item);
+    protected void pickUpItem(ServerLevel world, ItemEntity item) {
+        super.pickUpItem(world, item);
         UUID thrower = item.getOwner() != null ? item.getOwner().getUUID() : null;
         if(thrower != null && !this.trustsUuid(thrower)) {
             if(this.random.nextInt(3) == 0) {

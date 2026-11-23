@@ -4,7 +4,6 @@ import aqario.fowlplay.common.entity.FlyingBirdEntity;
 import aqario.fowlplay.common.util.Birds;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -41,7 +40,7 @@ public class FlightNavigation extends GroundPathNavigation implements ExtendedNa
     @Override
     protected PathFinder createPathFinder(int maxVisitedNodes) {
         this.nodeEvaluator = new FlyNodeEvaluator();
-        this.nodeEvaluator.setCanPassDoors(true);
+        this.nodeEvaluator.setCanOpenDoors(true);
 
         return this.createSmoothPathFinder(this.nodeEvaluator, maxVisitedNodes);
     }
@@ -128,7 +127,6 @@ public class FlightNavigation extends GroundPathNavigation implements ExtendedNa
                 this.bird.stopFlying();
             }
 
-            DebugPackets.sendPathFindingPacket(this.level, this.getMob(), this.getPath(), 0.1f);
             if(!this.isDone()) {
                 Vec3 vec3d = this.path.getNextEntityPos(this.bird);
                 this.bird.getMoveControl().setWantedPosition(vec3d.x, vec3d.y, vec3d.z, this.speedModifier);

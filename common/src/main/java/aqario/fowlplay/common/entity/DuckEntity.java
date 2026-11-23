@@ -1,5 +1,6 @@
-package aqario.fowlplay.common.entity;
-
+package aqario.fowlplay.common.entity;import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.*;
@@ -20,7 +21,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
@@ -62,7 +63,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class DuckEntity extends TrustingBirdEntity implements BirdBrain<DuckEntity>, VariantHolder<Holder<DuckVariant>>, Domesticatable, Flocking {
+public class DuckEntity extends TrustingBirdEntity implements BirdBrain<DuckEntity>, Domesticatable, Flocking {
     private static final EntityDataAccessor<Holder<DuckVariant>> VARIANT = SynchedEntityData.defineId(
         DuckEntity.class,
         FowlPlayEntityDataSerializers.DUCK_VARIANT
@@ -147,33 +148,31 @@ public class DuckEntity extends TrustingBirdEntity implements BirdBrain<DuckEnti
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(CLIPPED, false);
-        builder.define(VARIANT, FowlPlayBuiltInRegistries.DUCK_VARIANT.getHolderOrThrow(DuckVariant.GREEN_HEADED));
+        builder.define(VARIANT, FowlPlayBuiltInRegistries.DUCK_VARIANT.getOrThrow(DuckVariant.GREEN_HEADED));
     }
 
-    @Override
     public Holder<DuckVariant> getVariant() {
         return this.entityData.get(VARIANT);
     }
 
-    @Override
     public void setVariant(Holder<DuckVariant> variant) {
         this.entityData.set(VARIANT, variant);
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean(CLIPPED_KEY, this.hasClippedWings());
-        nbt.putString(VARIANT_KEY, this.getVariant().unwrapKey().orElse(DuckVariant.GREEN_HEADED).location().toString());
+        nbt.putString(VARIANT_KEY, this.getVariant().unwrapKey().orElse(DuckVariant.GREEN_HEADED).identifier().toString());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        this.setClippedWings(nbt.getBoolean(CLIPPED_KEY));
-        Optional.ofNullable(ResourceLocation.tryParse(nbt.getString(VARIANT_KEY)))
+        this.setClippedWings(nbt.getBooleanOr(CLIPPED_KEY, false));
+        Optional.ofNullable(Identifier.tryParse(nbt.getString(VARIANT_KEY).orElse("")))
             .map(variant -> ResourceKey.create(FowlPlayRegistries.DUCK_VARIANT, variant))
-            .flatMap(FowlPlayBuiltInRegistries.DUCK_VARIANT::getHolder)
+            .flatMap(FowlPlayBuiltInRegistries.DUCK_VARIANT::get)
             .ifPresent(this::setVariant);
     }
 
@@ -183,7 +182,7 @@ public class DuckEntity extends TrustingBirdEntity implements BirdBrain<DuckEnti
     }
 
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.DUCK_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.DUCK_FOOD));
     }
 
     @Override

@@ -21,11 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(CrossCollisionBlock.class)
 public abstract class CrossCollisionBlockMixin {
     @Shadow
-    protected abstract int getAABBIndex(BlockState state);
-
-    @Shadow
     @Final
-    protected VoxelShape[] collisionShapeByIndex;
+    private java.util.function.Function<BlockState, VoxelShape> collisionShapes;
 
     @Inject(method = "getCollisionShape", at = @At(value = "HEAD"), cancellable = true)
     private void fowlplay$lowerFenceHeight(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
@@ -35,7 +32,7 @@ public abstract class CrossCollisionBlockMixin {
             && entityContext.getEntity() != null
             && Birds.isNotFlightless(entityContext.getEntity())
         ) {
-            VoxelShape originalShape = this.collisionShapeByIndex[this.getAABBIndex(state)];
+            VoxelShape originalShape = this.collisionShapes.apply(state);
             if(originalShape.max(Direction.Axis.Y) > 1) {
                 cir.setReturnValue(Shapes.box(
                     originalShape.min(Direction.Axis.X),

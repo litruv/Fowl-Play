@@ -17,17 +17,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Map;
 
 @Mixin(WallBlock.class)
 public class WallBlockMixin {
     @Shadow
     @Final
-    private Map<BlockState, VoxelShape> collisionShapeByIndex;
+    private java.util.function.Function<BlockState, VoxelShape> collisionShapes;
 
     @Shadow
     @Final
-    private Map<BlockState, VoxelShape> shapeByIndex;
+    private java.util.function.Function<BlockState, VoxelShape> shapes;
 
     @Inject(method = "getCollisionShape", at = @At(value = "RETURN"), cancellable = true)
     private void fowlplay$lowerWallHeight(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
@@ -35,14 +34,14 @@ public class WallBlockMixin {
             && entityContext.getEntity() != null
             && Birds.isNotFlightless(entityContext.getEntity())
         ) {
-            VoxelShape originalShape = this.collisionShapeByIndex.get(state);
+            VoxelShape originalShape = this.collisionShapes.apply(state);
             if(originalShape.max(Direction.Axis.Y) > 1) {
                 cir.setReturnValue(Shapes.box(
                     originalShape.min(Direction.Axis.X),
                     originalShape.min(Direction.Axis.Y),
                     originalShape.min(Direction.Axis.Z),
                     originalShape.max(Direction.Axis.X),
-                    this.shapeByIndex.get(state).max(Direction.Axis.Y),
+                    this.shapes.apply(state).max(Direction.Axis.Y),
                     originalShape.max(Direction.Axis.Z)
                 ));
             }

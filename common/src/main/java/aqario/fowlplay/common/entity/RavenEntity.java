@@ -1,5 +1,6 @@
-package aqario.fowlplay.common.entity;
-
+package aqario.fowlplay.common.entity;import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.*;
@@ -43,7 +44,7 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.InWaterSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -78,12 +79,12 @@ public class RavenEntity extends TrustingBirdEntity implements BirdBrain<RavenEn
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
     }
 
@@ -93,7 +94,7 @@ public class RavenEntity extends TrustingBirdEntity implements BirdBrain<RavenEn
     }
 
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.RAVEN_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.RAVEN_FOOD));
     }
 
     @Override
@@ -107,11 +108,11 @@ public class RavenEntity extends TrustingBirdEntity implements BirdBrain<RavenEn
         if(this.hasLowHealth()) {
             return false;
         }
-        LivingEntity hurtBy = BrainUtils.getLastAttacker(this);
+        LivingEntity hurtBy = BrainUtil.getLastAttacker(this);
         if(!target.getType().is(FowlPlayEntityTypeTags.RAVEN_ATTACK_TARGETS) && (hurtBy == null || !hurtBy.equals(target))) {
             return false;
         }
-        Optional<List<? extends AgeableMob>> nearbyAdults = Optional.ofNullable(BrainUtils.getMemory(this, FowlPlayMemoryTypes.NEAREST_VISIBLE_ADULTS.get()));
+        Optional<List<? extends AgeableMob>> nearbyAdults = Optional.ofNullable(BrainUtil.getMemory(this, FowlPlayMemoryTypes.NEAREST_VISIBLE_ADULTS.get()));
         return nearbyAdults.filter(passiveEntities -> passiveEntities.size() >= 2).isPresent();
     }
 
@@ -258,7 +259,7 @@ public class RavenEntity extends TrustingBirdEntity implements BirdBrain<RavenEn
                     SetAdultWalkTarget.create(Birds.STAY_NEAR_ENTITY_RANGE),
                     2
                 )
-            ).startCondition(entity -> !BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET))
+            ).startCondition(entity -> !BrainUtil.hasMemory(entity, MemoryModuleType.WALK_TARGET))
         );
     }
 

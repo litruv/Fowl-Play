@@ -4,16 +4,19 @@ import aqario.fowlplay.client.render.entity.model.AdultBabyModelPair;
 import aqario.fowlplay.client.render.entity.model.CustomBabyChickenModel;
 import aqario.fowlplay.client.render.entity.model.CustomChickenModel;
 import aqario.fowlplay.common.entity.ChickenVariant;
+import aqario.fowlplay.core.platform.DataAttachmentHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.VariantHolder;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 
-public class CustomChickenRenderer extends MobRenderer<Chicken, CustomChickenModel> {
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+public class CustomChickenRenderer extends MobRenderer<Chicken, BirdRenderState<Chicken>, CustomChickenModel> {
     private final AdultBabyModelPair<CustomChickenModel> modelPair;
 
     public CustomChickenRenderer(EntityRendererProvider.Context context) {
@@ -29,17 +32,30 @@ public class CustomChickenRenderer extends MobRenderer<Chicken, CustomChickenMod
     }
 
     @Override
-    public void render(Chicken chicken, float f, float g, PoseStack matrices, MultiBufferSource vertexConsumers, int i) {
-        this.model = this.modelPair.getModel(chicken.isBaby());
-        if(chicken.isBaby()) {
+    public void submit(BirdRenderState<Chicken> state, PoseStack matrices, SubmitNodeCollector collectors, CameraRenderState camera) {
+
+        this.model = this.modelPair.getModel(state.entity.isBaby());
+        if(state.entity.isBaby()) {
             matrices.scale(0.8F, 0.8F, 0.8F);
         }
-        super.render(chicken, f, g, matrices, vertexConsumers, i);
+        super.submit(state, matrices, collectors, camera);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ResourceLocation getTextureLocation(Chicken chicken) {
-        return ((VariantHolder<Holder<ChickenVariant>>) chicken).getVariant().value().texture(chicken.isBaby());
+    public Identifier getTextureLocation(BirdRenderState<Chicken> state) {
+        return DataAttachmentHelper.getChickenVariant(state.entity).value().texture(state.entity.isBaby());
+    }
+
+    @Override
+    public BirdRenderState<Chicken> createRenderState() {
+        return new BirdRenderState<>();
+    }
+
+    @Override
+    public void extractRenderState(Chicken entity, BirdRenderState<Chicken> state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.entity = entity;
+        state.partialTick = partialTick;
     }
 }

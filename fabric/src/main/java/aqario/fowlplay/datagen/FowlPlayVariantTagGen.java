@@ -24,10 +24,10 @@ public abstract class FowlPlayVariantTagGen<T> extends FabricTagProvider<T> {
 
         @Override
         protected void addTags(HolderLookup.Provider lookup) {
-            this.getOrCreateTagBuilder(FowlPlayVariantTags.Duck.NATURAL)
+            this.builder(FowlPlayVariantTags.Duck.NATURAL)
                 .add(DuckVariant.GREEN_HEADED)
                 .add(DuckVariant.BROWN);
-            this.getOrCreateTagBuilder(FowlPlayVariantTags.Duck.DOMESTIC)
+            this.builder(FowlPlayVariantTags.Duck.DOMESTIC)
                 .add(DuckVariant.PEKIN);
         }
     }
@@ -39,11 +39,11 @@ public abstract class FowlPlayVariantTagGen<T> extends FabricTagProvider<T> {
 
         @Override
         protected void addTags(HolderLookup.Provider lookup) {
-            this.getOrCreateTagBuilder(FowlPlayVariantTags.Goose.NATURAL)
+            this.builder(FowlPlayVariantTags.Goose.NATURAL)
                 .add(GooseVariant.GREYLAG)
                 .add(GooseVariant.CANADA)
                 .add(GooseVariant.SWAN);
-            this.getOrCreateTagBuilder(FowlPlayVariantTags.Goose.DOMESTIC)
+            this.builder(FowlPlayVariantTags.Goose.DOMESTIC)
                 .add(GooseVariant.EMDEN)
                 .add(GooseVariant.CHINESE);
         }

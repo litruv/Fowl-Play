@@ -58,11 +58,11 @@ public class FowlPlayEntityLootTableGen extends SimpleFabricLootTableProvider {
                                 .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registryLookupFuture.join(), UniformGenerator.between(0.0F, 1.0F)))
                         )
                 )
-                .setRandomSequence(type.getDefaultLootTable().location())
+                .setRandomSequence(type.getDefaultLootTable().orElseThrow().identifier())
         );
     }
 
     private void register(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> exporter, EntityType<?> type, LootTable.Builder builder) {
-        exporter.accept(type.getDefaultLootTable(), builder);
+        exporter.accept(type.getDefaultLootTable().orElseThrow(), builder);
     }
 }

@@ -9,8 +9,8 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.tslat.smartbrainlib.api.core.sensor.EntityFilteringSensor;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.util.BrainUtils;
-import net.tslat.smartbrainlib.util.SensoryUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
+import net.tslat.smartbrainlib.util.SensoryUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -49,12 +49,12 @@ public class AttackTargetSensor<E extends BirdEntity> extends EntityFilteringSen
     }
 
     private static boolean canAttack(BirdEntity bird, LivingEntity target) {
-        return SensoryUtils.isEntityAttackable(bird, target)
+        return SensoryUtil.isEntityAttackable(bird, target)
             && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target);
     }
 
     private static boolean canHunt(BirdEntity bird, LivingEntity target) {
-        return !BrainUtils.hasMemory(bird, MemoryModuleType.HAS_HUNTING_COOLDOWN)
+        return !BrainUtil.hasMemory(bird, MemoryModuleType.HAS_HUNTING_COOLDOWN)
             && canAttack(bird, target);
     }
 }

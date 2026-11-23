@@ -2,6 +2,7 @@ package aqario.fowlplay.core;
 
 import aqario.fowlplay.common.item.ScarecrowItem;
 import aqario.fowlplay.core.platform.PlatformHelper;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -90,7 +91,8 @@ public final class FowlPlayItems {
         Item.Properties properties,
         ResourceKey<CreativeModeTab> group
     ) {
-        return PlatformHelper.registerItem(id, factory.apply(properties), group);
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, FowlPlay.id(id));
+        return PlatformHelper.registerItem(id, factory.apply(properties.setId(key)), group);
     }
 
     public static void init() {

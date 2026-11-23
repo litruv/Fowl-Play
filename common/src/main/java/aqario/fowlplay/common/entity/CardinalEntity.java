@@ -1,5 +1,5 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.core.registries.BuiltInRegistries;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.CompositeBehaviours;
@@ -46,7 +46,7 @@ public class CardinalEntity extends FlyingBirdEntity implements BirdBrain<Cardin
 
     @Override
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.CARDINAL_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.CARDINAL_FOOD));
     }
 
     @Override

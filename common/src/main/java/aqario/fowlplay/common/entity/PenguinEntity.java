@@ -1,5 +1,6 @@
-package aqario.fowlplay.common.entity;
-
+package aqario.fowlplay.common.entity;import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.*;
@@ -73,7 +74,7 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.InWaterSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -141,7 +142,7 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel world, AgeableMob entity) {
-        return FowlPlayEntityTypes.PENGUIN.get().create(world);
+        return FowlPlayEntityTypes.PENGUIN.get().create(world, EntitySpawnReason.BREEDING);
     }
 
     @Override
@@ -151,7 +152,7 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
 
     @Override
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.PENGUIN_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.PENGUIN_FOOD));
     }
 
     @Override
@@ -201,15 +202,15 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putLong("lastPoseTick", this.entityData.get(LAST_POSE_TICK));
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        long l = nbt.getLong("lastPoseTick");
+        long l = nbt.getLongOr("lastPoseTick", 0L);
         if(l < LAST_POSE_CHANGE_TICKS) {
             this.setPose(Pose.SLIDING);
         }
@@ -392,7 +393,7 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
         Vec3 vec3d = getCollisionHorizontalEscapeVector(this.getBbWidth() * Mth.SQRT_OF_TWO, passenger.getBbWidth(), passenger.getYRot());
         double d = this.getX() + vec3d.x;
         double e = this.getZ() + vec3d.z;
-        BlockPos blockPos = new BlockPos((int) d, (int) this.getAttackBoundingBox().maxY, (int) e);
+        BlockPos blockPos = new BlockPos((int) d, (int) this.getAttackBoundingBox(0.0).maxY, (int) e);
         BlockPos blockPos2 = blockPos.below();
         if(!this.level().isWaterAt(blockPos2)) {
             List<Vec3> list = Lists.newArrayList();
@@ -536,16 +537,16 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         boolean bl = this.isFood(player.getItemInHand(hand));
         if(!bl && !this.isVehicle() && !player.isSecondaryUseActive() && !this.isBaby() && this.isSliding()) {
-            if(!this.level().isClientSide) {
+            if(!this.level().isClientSide()) {
                 player.startRiding(this);
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.SUCCESS;
         }
         return super.mobInteract(player, hand);
     }
 
     @Override
-    protected int calculateFallDamage(float fallDistance, float damageMultiplier) {
+    protected int calculateFallDamage(double fallDistance, float damageMultiplier) {
         if(this.getPose() == Pose.SLIDING) {
             return (super.calculateFallDamage(fallDistance, damageMultiplier) - 3) / 2;
         }
@@ -591,7 +592,7 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
             new NearbyFoodSensor<>(),
             new NearbyAdultsSensor<>(),
             new ItemTemptingSensor<PenguinEntity>()
-                .temptedWith((entity, stack) -> this.getFood().test(stack)),
+                .temptedWith((entity, stack, player) -> this.getFood().test(stack)),
             new InWaterSensor<>(),
             new AttackedSensor<>(),
             new AvoidTargetSensor<>(),
@@ -650,7 +651,7 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
                         .setRadius(32, 16),
                     2
                 )
-            ).startCondition(entity -> entity.isInWater() && !BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET)),
+            ).startCondition(entity -> entity.isInWater() && !BrainUtil.hasMemory(entity, MemoryModuleType.WALK_TARGET)),
             new OneRandomBehaviour<>(
                 Pair.of(
                     new SetRandomWalkTarget<>()
@@ -674,7 +675,7 @@ public class PenguinEntity extends BirdEntity implements BirdBrain<PenguinEntity
                     CompositeBehaviours.slideToWater(),
                     6
                 )
-            ).startCondition(entity -> !entity.isInWater() && !BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET))
+            ).startCondition(entity -> !entity.isInWater() && !BrainUtil.hasMemory(entity, MemoryModuleType.WALK_TARGET))
         );
     }
 

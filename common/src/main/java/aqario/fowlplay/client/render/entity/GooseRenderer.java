@@ -11,19 +11,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 
-public class GooseRenderer extends MobRenderer<GooseEntity, GooseModel> {
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+public class GooseRenderer extends MobRenderer<GooseEntity, BirdRenderState<GooseEntity>, GooseModel> {
     private final Map<GooseVariant.ModelType, AdultBabyModelPair<GooseModel>> models;
 
     public GooseRenderer(EntityRendererProvider.Context context) {
         super(context, new GooseModel(context.bakeLayer(GooseModel.MODEL_LAYER)), 0.3f);
         this.addLayer(new BirdHeldItemLayer<>(
             this,
-            context.getItemInHandRenderer(),
+            context.getEntityRenderDispatcher().getItemInHandRenderer(),
             new Vec3(0.0, -0.05375, -0.1475)
         ));
         this.models = bakeModels(context);
@@ -45,14 +48,27 @@ public class GooseRenderer extends MobRenderer<GooseEntity, GooseModel> {
     }
 
     @Override
-    public void render(GooseEntity goose, float f, float g, PoseStack matrices, MultiBufferSource vertexConsumerProvider, int i) {
-        this.model = this.models.get(goose.getVariant().value().modelType())
-            .getModel(goose.isBaby());
-        super.render(goose, f, g, matrices, vertexConsumerProvider, i);
+    public void submit(BirdRenderState<GooseEntity> state, PoseStack matrices, SubmitNodeCollector collectors, CameraRenderState camera) {
+
+        this.model = this.models.get(state.entity.getVariant().value().modelType())
+            .getModel(state.entity.isBaby());
+        super.submit(state, matrices, collectors, camera);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(GooseEntity goose) {
-        return goose.getVariant().value().texture(goose.isBaby());
+    public Identifier getTextureLocation(BirdRenderState<GooseEntity> state) {
+        return state.entity.getVariant().value().texture(state.entity.isBaby());
+    }
+
+    @Override
+    public BirdRenderState<GooseEntity> createRenderState() {
+        return new BirdRenderState<>();
+    }
+
+    @Override
+    public void extractRenderState(GooseEntity entity, BirdRenderState<GooseEntity> state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.entity = entity;
+        state.partialTick = partialTick;
     }
 }

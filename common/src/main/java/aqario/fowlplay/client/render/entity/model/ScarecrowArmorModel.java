@@ -1,5 +1,6 @@
 package aqario.fowlplay.client.render.entity.model;
 
+import aqario.fowlplay.client.render.entity.state.ScarecrowRenderState;
 import aqario.fowlplay.common.entity.ScarecrowEntity;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -7,7 +8,7 @@ import net.minecraft.client.model.geom.PartNames;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
-public class ScarecrowArmorModel extends HumanoidModel<ScarecrowEntity> {
+public class ScarecrowArmorModel extends HumanoidModel<ScarecrowRenderState<ScarecrowEntity>> {
     public ScarecrowArmorModel(ModelPart root) {
         super(root);
     }
@@ -28,7 +29,7 @@ public class ScarecrowArmorModel extends HumanoidModel<ScarecrowEntity> {
         modelPartData.addOrReplaceChild(
             PartNames.HEAD,
             CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, dilation),
-            PartPose.offset(0.0F, 1.0F, 0.0F)
+            PartPose.offset(0.0F, -2.0F, 0.0F)
         );
         modelPartData.addOrReplaceChild(
             PartNames.LEFT_LEG,
@@ -44,25 +45,21 @@ public class ScarecrowArmorModel extends HumanoidModel<ScarecrowEntity> {
     }
 
     @Override
-    public void setupAnim(ScarecrowEntity scarecrowEntity, float f, float g, float h, float i, float j) {
-        this.head.xRot = (float) (Math.PI / 180.0) * scarecrowEntity.getHeadRotation().getX();
-        this.head.yRot = (float) (Math.PI / 180.0) * scarecrowEntity.getHeadRotation().getY();
-        this.head.zRot = (float) (Math.PI / 180.0) * scarecrowEntity.getHeadRotation().getZ();
-        this.body.xRot = (float) (Math.PI / 180.0) * scarecrowEntity.getBodyRotation().getX();
-        this.body.yRot = (float) (Math.PI / 180.0) * scarecrowEntity.getBodyRotation().getY();
-        this.body.zRot = (float) (Math.PI / 180.0) * scarecrowEntity.getBodyRotation().getZ();
-        this.leftArm.xRot = (float) (Math.PI / 180.0) * scarecrowEntity.getLeftArmRotation().getX();
-        this.leftArm.yRot = (float) (Math.PI / 180.0) * scarecrowEntity.getLeftArmRotation().getY();
-        this.leftArm.zRot = (float) (Math.PI / 180.0) * scarecrowEntity.getLeftArmRotation().getZ();
-        this.rightArm.xRot = (float) (Math.PI / 180.0) * scarecrowEntity.getRightArmRotation().getX();
-        this.rightArm.yRot = (float) (Math.PI / 180.0) * scarecrowEntity.getRightArmRotation().getY();
-        this.rightArm.zRot = (float) (Math.PI / 180.0) * scarecrowEntity.getRightArmRotation().getZ();
-        this.leftLeg.xRot = 0;
-        this.leftLeg.yRot = 0;
-        this.leftLeg.zRot = 0;
-        this.rightLeg.xRot = 0;
-        this.rightLeg.yRot = 0;
-        this.rightLeg.zRot = 0;
-        this.hat.copyFrom(this.head);
+    public void setupAnim(ScarecrowRenderState<ScarecrowEntity> state) {
+        this.resetPose();
+        ScarecrowEntity scarecrowEntity = state.entity;
+        float deg = (float) (Math.PI / 180.0);
+        this.head.xRot = deg * scarecrowEntity.getHeadRotation().x();
+        this.head.yRot = deg * scarecrowEntity.getHeadRotation().y();
+        this.head.zRot = deg * scarecrowEntity.getHeadRotation().z();
+        this.body.xRot = deg * scarecrowEntity.getBodyRotation().x();
+        this.body.yRot = deg * scarecrowEntity.getBodyRotation().y();
+        this.body.zRot = deg * scarecrowEntity.getBodyRotation().z();
+        this.leftArm.xRot = deg * scarecrowEntity.getLeftArmRotation().x();
+        this.leftArm.yRot = deg * scarecrowEntity.getLeftArmRotation().y();
+        this.leftArm.zRot = deg * scarecrowEntity.getLeftArmRotation().z();
+        this.rightArm.xRot = deg * scarecrowEntity.getRightArmRotation().x();
+        this.rightArm.yRot = deg * scarecrowEntity.getRightArmRotation().y();
+        this.rightArm.zRot = deg * scarecrowEntity.getRightArmRotation().z();
     }
 }

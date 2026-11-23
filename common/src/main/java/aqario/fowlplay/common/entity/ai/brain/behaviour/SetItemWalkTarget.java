@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.tslat.smartbrainlib.registry.SBLMemoryTypes;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 import java.util.function.Function;
@@ -45,17 +45,17 @@ public class SetItemWalkTarget<E extends BirdEntity> extends SpeedModifiableBeha
     @Override
     protected void start(E entity) {
         Brain<?> brain = entity.getBrain();
-        List<ItemEntity> wantedItems = BrainUtils.getMemory(brain, SBLMemoryTypes.NEARBY_ITEMS.get());
+        List<ItemEntity> wantedItems = BrainUtil.getMemory(brain, SBLMemoryTypes.NEARBY_ITEMS.get());
         // noinspection ConstantConditions
         ItemEntity targetItem = wantedItems.getFirst();
         if(targetItem.closerThan(entity, this.radius.apply(entity))
             && entity.level().getWorldBorder().isWithinBounds(targetItem.blockPosition())
         ) {
             WalkTarget newWalkTarget = new WalkTarget(new EntityTracker(targetItem, false), this.speedModifier.apply(entity, targetItem.position()), 0);
-            if(!BrainUtils.hasMemory(brain, MemoryModuleType.AVOID_TARGET)) {
-                BrainUtils.setMemory(brain, MemoryModuleType.LOOK_TARGET, new EntityTracker(targetItem, true));
+            if(!BrainUtil.hasMemory(brain, MemoryModuleType.AVOID_TARGET)) {
+                BrainUtil.setMemory(brain, MemoryModuleType.LOOK_TARGET, new EntityTracker(targetItem, true));
             }
-            BrainUtils.setMemory(brain, MemoryModuleType.WALK_TARGET, newWalkTarget);
+            BrainUtil.setMemory(brain, MemoryModuleType.WALK_TARGET, newWalkTarget);
         }
     }
 }

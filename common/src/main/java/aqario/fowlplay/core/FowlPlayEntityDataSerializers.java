@@ -8,6 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.syncher.EntityDataSerializer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class FowlPlayEntityDataSerializers {
@@ -34,6 +35,10 @@ public final class FowlPlayEntityDataSerializers {
     public static final EntityDataSerializer<Holder<SparrowVariant>> SPARROW_VARIANT = register(
         "sparrow_variant",
         EntityDataSerializer.forValueType(SparrowVariant.PACKET_CODEC)
+    );
+    public static final EntityDataSerializer<Optional<UUID>> OPTIONAL_UUID = register(
+        "optional_uuid",
+        EntityDataSerializer.forValueType(ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC))
     );
     public static final EntityDataSerializer<List<UUID>> UUID_LIST = register(
         "uuid_list",

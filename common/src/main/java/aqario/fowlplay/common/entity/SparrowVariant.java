@@ -8,16 +8,16 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public record SparrowVariant(ResourceLocation texture) {
+public record SparrowVariant(Identifier texture) {
     public static final StreamCodec<RegistryFriendlyByteBuf, Holder<SparrowVariant>> PACKET_CODEC = ByteBufCodecs.holderRegistry(FowlPlayRegistries.SPARROW_VARIANT);
     public static final ResourceKey<SparrowVariant> BROWN = register("brown");
     public static final ResourceKey<SparrowVariant> PALE = register("pale");
 
     private static ResourceKey<SparrowVariant> register(String id) {
         ResourceKey<SparrowVariant> key = ResourceKey.create(FowlPlayRegistries.SPARROW_VARIANT, FowlPlay.id(id));
-        ResourceLocation texture = FowlPlay.id("textures/entity/sparrow/" + key.location().getPath() + "_sparrow.png");
+        Identifier texture = FowlPlay.id("textures/entity/sparrow/" + key.identifier().getPath() + "_sparrow.png");
         PlatformHelper.registerVariant(id, key, () -> new SparrowVariant(texture));
         return key;
     }

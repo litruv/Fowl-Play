@@ -1,5 +1,5 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.core.registries.BuiltInRegistries;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.*;
@@ -58,7 +58,7 @@ public class SparrowEntity extends FlyingBirdEntity implements BirdBrain<Sparrow
 
     @Override
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.SPARROW_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.SPARROW_FOOD));
     }
 
     @Override

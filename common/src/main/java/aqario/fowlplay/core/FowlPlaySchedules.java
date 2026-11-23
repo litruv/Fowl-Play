@@ -46,6 +46,7 @@ public class FowlPlaySchedules {
     );
 
     private static Supplier<ExtendedSchedule> register(String id, ExtendedSchedule schedule) {
+        schedule.name = id;
         return PlatformHelper.registerSchedule(id, () -> schedule);
     }
 

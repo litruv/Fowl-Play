@@ -17,27 +17,27 @@ public class FowlPlayBlockTagGen extends FabricTagProvider.BlockTagProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider lookup) {
-        this.getOrCreateTagBuilder(FowlPlayBlockTags.PENGUINS_SLIDE_ON)
+        this.valueLookupBuilder(FowlPlayBlockTags.PENGUINS_SLIDE_ON)
             .addOptionalTag(BlockTags.ICE)
             .addOptionalTag(BlockTags.SNOW);
-        this.getOrCreateTagBuilder(FowlPlayBlockTags.PENGUINS_SPAWNABLE_ON)
+        this.valueLookupBuilder(FowlPlayBlockTags.PENGUINS_SPAWNABLE_ON)
             .addOptionalTag(BlockTags.DIRT)
             .addOptionalTag(BlockTags.ICE)
             .addOptionalTag(BlockTags.SAND)
             .add(Blocks.POWDER_SNOW)
             .add(Blocks.SNOW_BLOCK);
-        this.getOrCreateTagBuilder(FowlPlayBlockTags.PERCHES)
+        this.valueLookupBuilder(FowlPlayBlockTags.PERCHES)
             .addOptionalTag(BlockTags.LEAVES)
             .addOptionalTag(BlockTags.LOGS)
             .addOptionalTag(BlockTags.WALLS)
             .addOptionalTag(BlockTags.FENCES)
             .addOptionalTag(BlockTags.FENCE_GATES);
-        this.getOrCreateTagBuilder(FowlPlayBlockTags.SHOREBIRDS_SPAWNABLE_ON)
+        this.valueLookupBuilder(FowlPlayBlockTags.SHOREBIRDS_SPAWNABLE_ON)
             .addOptionalTag(BlockTags.DIRT)
             .addOptionalTag(BlockTags.SAND)
             .addOptionalTag(ConventionalBlockTags.STONES)
             .add(Blocks.GRAVEL);
-        this.getOrCreateTagBuilder(FowlPlayBlockTags.WATERFOWL_SPAWNABLE_ON)
+        this.valueLookupBuilder(FowlPlayBlockTags.WATERFOWL_SPAWNABLE_ON)
             .addOptionalTag(BlockTags.DIRT)
             .addOptionalTag(BlockTags.SAND)
             .addOptionalTag(ConventionalBlockTags.STONES)

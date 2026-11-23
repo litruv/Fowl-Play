@@ -3,6 +3,8 @@ package aqario.fowlplay.common.util;
 import aqario.fowlplay.common.entity.BirdEntity;
 import aqario.fowlplay.common.entity.FlyingBirdEntity;
 import aqario.fowlplay.common.entity.TrustingBirdEntity;
+import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
+import aqario.fowlplay.common.entity.ai.brain.ExtendedSchedule;
 import com.google.common.collect.Lists;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.core.BlockPos;
@@ -12,7 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.DebugEntityNameGenerator;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
@@ -138,7 +140,7 @@ public record DebugBirdData(
         List<String> activities = brain.getActiveActivities().stream().map(Activity::getName).toList();
         List<String> behaviors = brain.getRunningBehaviors().stream().map(BehaviorControl::debugString).toList();
         List<String> memories = getMemoryDescriptions(bird, bird.level().getGameTime());
-        String schedule = Optional.ofNullable(BuiltInRegistries.SCHEDULE.getKey(brain.getSchedule())).map(ResourceLocation::getPath).orElse(null);
+        String schedule = bird instanceof BirdBrain<?> birdBrain ? ((ExtendedSchedule) birdBrain.getSchedule()).name : null;
         Set<BlockPos> pois = Set.of();
         Set<BlockPos> potentialPois = Set.of();
 

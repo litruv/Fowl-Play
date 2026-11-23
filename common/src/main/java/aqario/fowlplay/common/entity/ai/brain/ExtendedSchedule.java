@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  * An extension of SmartBrainSchedule that optionally takes a supplier instead of the activity object
  */
 public class ExtendedSchedule extends SmartBrainSchedule {
+    public String name;
     private final SmartBrainSchedule.Type type;
     private final Int2ObjectArrayMap<Supplier<Activity>> timeline = new Int2ObjectArrayMap<>(0);
     private final ListMultimap<Integer, Consumer<LivingEntity>> callbacks = MultimapBuilder.hashKeys(0).arrayListValues().build();

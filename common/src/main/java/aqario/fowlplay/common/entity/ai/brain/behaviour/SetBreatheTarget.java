@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.LevelReader;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class SetBreatheTarget<E extends BirdEntity> extends SpeedModifiableBehav
     @Override
     protected void tick(E bird) {
         Vec3 targetPos = this.findAir(bird);
-        BrainUtils.setMemory(bird, MemoryModuleType.WALK_TARGET, new WalkTarget(targetPos, this.speedModifier.apply(bird, targetPos), 0));
+        BrainUtil.setMemory(bird, MemoryModuleType.WALK_TARGET, new WalkTarget(targetPos, this.speedModifier.apply(bird, targetPos), 0));
     }
 
     private Vec3 findAir(E bird) {

@@ -15,7 +15,7 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
 import net.tslat.smartbrainlib.registry.SBLMemoryTypes;
 import net.tslat.smartbrainlib.registry.SBLSensors;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 import net.tslat.smartbrainlib.util.EntityRetrievalUtil;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class NearbyFoodSensor<E extends BirdEntity> extends PredicateSensor<Item
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(SBLMemoryTypes.NEARBY_ITEMS.get());
 
     public NearbyFoodSensor() {
-        super((item, bird) -> bird.wantsToPickUp(item.getItem()) && bird.hasLineOfSight(item));
+        super((item, bird) -> bird.level() instanceof ServerLevel level && bird.wantsToPickUp(level, item.getItem()) && bird.hasLineOfSight(item));
     }
 
     @Override
@@ -42,13 +42,13 @@ public class NearbyFoodSensor<E extends BirdEntity> extends PredicateSensor<Item
         Brain<?> brain = bird.getBrain();
         double radius = bird.getAttributeValue(Attributes.FOLLOW_RANGE);
         List<ItemEntity> nearbyItems = EntityRetrievalUtil.getEntities(bird, radius, ItemEntity.class, item -> predicate().test(item, bird));
-        BrainUtils.setMemory(brain, SBLMemoryTypes.NEARBY_ITEMS.get(), nearbyItems);
+        BrainUtil.setMemory(brain, SBLMemoryTypes.NEARBY_ITEMS.get(), nearbyItems);
 
         if(Birds.canPickupFood(bird)) {
-            BrainUtils.setMemory(brain, FowlPlayMemoryTypes.SEES_FOOD.get(), Unit.INSTANCE);
+            BrainUtil.setMemory(brain, FowlPlayMemoryTypes.SEES_FOOD.get(), Unit.INSTANCE);
         }
         else {
-            BrainUtils.clearMemory(brain, FowlPlayMemoryTypes.SEES_FOOD.get());
+            BrainUtil.clearMemory(brain, FowlPlayMemoryTypes.SEES_FOOD.get());
         }
     }
 }

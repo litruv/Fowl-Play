@@ -22,7 +22,7 @@ public abstract class LivingEntityMixin extends Entity {
         super(variant, world);
     }
 
-    @ModifyVariable(method = "travel", at = @At("STORE"), ordinal = 0)
+    @ModifyVariable(method = "travelInAir", at = @At("STORE"), ordinal = 0)
     private float fowlplay$modifySlipperiness(float slipperiness) {
         LivingEntity entity = (LivingEntity) (Object) this;
         BlockState state = this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement());

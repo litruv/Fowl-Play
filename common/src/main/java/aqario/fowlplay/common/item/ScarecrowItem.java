@@ -41,13 +41,14 @@ public class ScarecrowItem extends Item {
 
         if(world instanceof ServerLevel serverWorld) {
             ScarecrowEntity scarecrow = FowlPlayEntityTypes.SCARECROW.get()
-                .create(serverWorld, null, blockPos, EntitySpawnReason.SPAWN_EGG, true, true);
+                .create(serverWorld, null, blockPos, EntitySpawnReason.SPAWN_ITEM_USE, true, true);
             if(scarecrow == null) {
                 return InteractionResult.FAIL;
             }
 
             float yaw = (float) Mth.floor((Mth.wrapDegrees(usageContext.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
-            scarecrow.moveTo(scarecrow.getX(), scarecrow.getY(), scarecrow.getZ(), yaw, 0.0F);
+            scarecrow.setYRot(yaw);
+            scarecrow.setXRot(0.0F);
             serverWorld.addFreshEntityWithPassengers(scarecrow);
             world.playSound(
                 null, scarecrow.getX(), scarecrow.getY(), scarecrow.getZ(), scarecrow.getPlaceSound(), SoundSource.BLOCKS, 0.75F, 0.8F
@@ -56,6 +57,6 @@ public class ScarecrowItem extends Item {
         }
 
         itemStack.shrink(1);
-        return InteractionResult.sidedSuccess(world.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 }

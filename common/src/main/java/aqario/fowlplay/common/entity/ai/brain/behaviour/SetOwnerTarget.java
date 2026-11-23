@@ -13,7 +13,7 @@ import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 
@@ -79,15 +79,15 @@ public class SetOwnerTarget extends SpeedModifiableBehaviour<PigeonEntity> {
     @Override
     protected void tick(PigeonEntity pigeon) {
         Brain<?> brain = pigeon.getBrain();
-        BrainUtils.setMemory(brain, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.owner, true));
+        BrainUtil.setMemory(brain, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.owner, true));
         if(--this.updateCountdownTicks <= 0) {
             this.updateCountdownTicks = 20;
             if(!pigeon.isLeashed() && !pigeon.isPassenger()) {
                 if(pigeon.distanceToSqr(this.owner) >= 144.0) {
-                    BrainUtils.setMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get(), new TeleportTarget(this.owner));
+                    BrainUtil.setMemory(brain, FowlPlayMemoryTypes.TELEPORT_TARGET.get(), new TeleportTarget(this.owner));
                 }
                 else {
-                    BrainUtils.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(this.owner, this.speedModifier.apply(pigeon, this.owner.position()), 0));
+                    BrainUtil.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(this.owner, this.speedModifier.apply(pigeon, this.owner.position()), 0));
                 }
             }
         }

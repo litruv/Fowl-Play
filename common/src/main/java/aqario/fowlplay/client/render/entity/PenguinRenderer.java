@@ -11,19 +11,22 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
-public class PenguinRenderer extends MobRenderer<PenguinEntity, PenguinModel> {
-    private static final ResourceLocation TEXTURE = FowlPlay.id("textures/entity/penguin/penguin.png");
-    private static final ResourceLocation BABY_TEXTURE = FowlPlay.id("textures/entity/penguin/penguin_baby.png");
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+public class PenguinRenderer extends MobRenderer<PenguinEntity, BirdRenderState<PenguinEntity>, PenguinModel> {
+    private static final Identifier TEXTURE = FowlPlay.id("textures/entity/penguin/penguin.png");
+    private static final Identifier BABY_TEXTURE = FowlPlay.id("textures/entity/penguin/penguin_baby.png");
     private final AdultBabyModelPair<PenguinModel> modelPair;
 
     public PenguinRenderer(EntityRendererProvider.Context context) {
         super(context, new PenguinModel(context.bakeLayer(PenguinModel.MODEL_LAYER)), 0.3f);
         this.addLayer(new BirdHeldItemLayer<>(
             this,
-            context.getItemInHandRenderer(),
+            context.getEntityRenderDispatcher().getItemInHandRenderer(),
             new Vec3(0.0, -0.145, -0.1475)
         ));
         this.modelPair = bakeModels(context);
@@ -37,24 +40,25 @@ public class PenguinRenderer extends MobRenderer<PenguinEntity, PenguinModel> {
     }
 
     @Override
-    public void render(PenguinEntity penguin, float f, float g, PoseStack matrices, MultiBufferSource vertexConsumerProvider, int i) {
-        this.model = this.modelPair.getModel(penguin.isBaby());
-        if(penguin.isBaby()) {
+    public void submit(BirdRenderState<PenguinEntity> state, PoseStack matrices, SubmitNodeCollector collectors, CameraRenderState camera) {
+
+        this.model = this.modelPair.getModel(state.entity.isBaby());
+        if(state.entity.isBaby()) {
             matrices.scale(0.8F, 0.8F, 0.8F);
         }
-        super.render(penguin, f, g, matrices, vertexConsumerProvider, i);
+        super.submit(state, matrices, collectors, camera);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(PenguinEntity entity) {
-        return entity.isBaby() ? BABY_TEXTURE : TEXTURE;
+    public Identifier getTextureLocation(BirdRenderState<PenguinEntity> state) {
+        return state.entity.isBaby() ? BABY_TEXTURE : TEXTURE;
     }
 
     @Override
-    protected void scale(PenguinEntity penguin, PoseStack matrices, float amount) {
-        super.scale(penguin, matrices, amount);
+    protected void scale(BirdRenderState<PenguinEntity> state, PoseStack matrices) {
+        super.scale(state, matrices);
 
-        String name = ChatFormatting.stripFormatting(penguin.getName().getString());
+        String name = ChatFormatting.stripFormatting(state.entity.getName().getString());
         if(name.equalsIgnoreCase("rico")) {
             matrices.scale(1.1F, 1F, 1F);
         }
@@ -67,5 +71,17 @@ public class PenguinRenderer extends MobRenderer<PenguinEntity, PenguinModel> {
         if(name.equalsIgnoreCase("private")) {
             matrices.scale(1.2F, 0.85F, 1F);
         }
+    }
+
+    @Override
+    public BirdRenderState<PenguinEntity> createRenderState() {
+        return new BirdRenderState<>();
+    }
+
+    @Override
+    public void extractRenderState(PenguinEntity entity, BirdRenderState<PenguinEntity> state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.entity = entity;
+        state.partialTick = partialTick;
     }
 }

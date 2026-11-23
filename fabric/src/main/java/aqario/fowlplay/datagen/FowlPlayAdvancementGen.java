@@ -5,11 +5,12 @@ import aqario.fowlplay.core.tags.FowlPlayEntityTypeTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 import net.minecraft.advancements.*;
-import net.minecraft.advancements.critereon.*;
+import net.minecraft.advancements.criterion.*;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.item.Items;
 
@@ -44,7 +45,7 @@ public class FowlPlayAdvancementGen extends FabricAdvancementProvider {
                 "hit_flying_bird",
                 PlayerHurtEntityTrigger.TriggerInstance.playerHurtEntity(
                     DamagePredicate.Builder.damageInstance().type(DamageSourcePredicate.Builder.damageType().tag(TagPredicate.is(DamageTypeTags.IS_PROJECTILE))),
-                    Optional.of(EntityPredicate.Builder.entity().of(FowlPlayEntityTypeTags.BIRDS).nbt(new NbtPredicate(flying)).build())
+                    Optional.of(EntityPredicate.Builder.entity().of(wrapperLookup.lookupOrThrow(Registries.ENTITY_TYPE), FowlPlayEntityTypeTags.BIRDS).nbt(new NbtPredicate(flying)).build())
                 )
             )
             .save(exporter, FowlPlay.id("adventure/damage_flying_bird").toString());
@@ -69,10 +70,10 @@ public class FowlPlayAdvancementGen extends FabricAdvancementProvider {
     }
 
     private static AdvancementHolder advancement(String id) {
-        return advancement(ResourceLocation.withDefaultNamespace(id));
+        return advancement(Identifier.withDefaultNamespace(id));
     }
 
-    private static AdvancementHolder advancement(ResourceLocation id) {
+    private static AdvancementHolder advancement(Identifier id) {
         return Advancement.Builder.advancement().build(id);
     }
 }

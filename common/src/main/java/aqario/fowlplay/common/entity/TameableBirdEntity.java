@@ -1,18 +1,19 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 public abstract class TameableBirdEntity extends TrustingBirdEntity implements OwnableEntity {
     protected static final EntityDataAccessor<Byte> TAMEABLE_FLAGS = SynchedEntityData.defineId(TameableBirdEntity.class, EntityDataSerializers.BYTE);
-    protected static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(TameableBirdEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    protected static final EntityDataAccessor<Optional<EntityReference<LivingEntity>>> OWNER = SynchedEntityData.defineId(TameableBirdEntity.class, EntityDataSerializers.OPTIONAL_LIVING_ENTITY_REFERENCE);
     private boolean sitting;
 
     protected TameableBirdEntity(EntityType<? extends BirdEntity> entityType, Level world) {
@@ -36,25 +37,26 @@ public abstract class TameableBirdEntity extends TrustingBirdEntity implements O
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
-        if(this.getOwnerUUID() != null) {
-            nbt.putUUID("owner", this.getOwnerUUID());
+        EntityReference<LivingEntity> owner = this.getOwnerReference();
+        if(owner != null) {
+            nbt.store("owner", EntityReference.codec(), owner);
         }
 
         nbt.putBoolean("sitting", this.sitting);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        if(nbt.hasUUID("owner")) {
-            UUID uuid = nbt.getUUID("owner");
-            this.setOwnerUuid(uuid);
+        EntityReference<LivingEntity> owner = EntityReference.readWithOldOwnerConversion(nbt, "owner", this.level());
+        if(owner != null) {
+            this.setOwnerUuid(owner.getUUID());
             this.setTamed(true);
         }
 
-        this.sitting = nbt.getBoolean("sitting");
+        this.sitting = nbt.getBooleanOr("sitting", false);
         this.setInSittingPose(this.sitting);
     }
 
@@ -119,11 +121,9 @@ public abstract class TameableBirdEntity extends TrustingBirdEntity implements O
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if(!this.level().isClientSide() && !this.isInvulnerableTo(source)) {
-            this.setSitting(false);
-        }
-        return super.hurt(source, amount);
+    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
+        this.setSitting(false);
+        return super.hurtServer(world, source, amount);
     }
 
     @Override
@@ -151,32 +151,25 @@ public abstract class TameableBirdEntity extends TrustingBirdEntity implements O
         }
     }
 
-    @Nullable
     @Override
-    public UUID getOwnerUUID() {
+    public EntityReference<LivingEntity> getOwnerReference() {
         return this.entityData.get(OWNER).orElse(null);
     }
 
+    @Nullable
+    public UUID getOwnerUUID() {
+        return this.entityData.get(OWNER).map(EntityReference::getUUID).orElse(null);
+    }
+
     public void setOwnerUuid(@Nullable UUID uuid) {
-        this.entityData.set(OWNER, Optional.ofNullable(uuid));
+        this.entityData.set(OWNER, uuid == null ? Optional.empty() : Optional.of(EntityReference.<LivingEntity>of(uuid)));
     }
 
     public void setOwner(Player player) {
         this.setTamed(true);
         this.setOwnerUuid(player.getUUID());
-        if(player instanceof ServerPlayer) {
-            CriteriaTriggers.TAME_ANIMAL.trigger((ServerPlayer) player, this);
-        }
-    }
-
-    @Nullable
-    public LivingEntity getOwner() {
-        try {
-            UUID uuid = this.getOwnerUUID();
-            return uuid == null ? null : this.level().getPlayerByUUID(uuid);
-        }
-        catch(IllegalArgumentException var2) {
-            return null;
+        if(player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.TAME_ANIMAL.trigger(serverPlayer, this);
         }
     }
 
@@ -202,25 +195,9 @@ public abstract class TameableBirdEntity extends TrustingBirdEntity implements O
     }
 
     @Override
-    public boolean isAlliedTo(Entity other) {
-        if(this.isTamed()) {
-            LivingEntity livingEntity = this.getOwner();
-            if(other == livingEntity) {
-                return true;
-            }
-
-            if(livingEntity != null) {
-                return livingEntity.isAlliedTo(other);
-            }
-        }
-
-        return super.isAlliedTo(other);
-    }
-
-    @Override
     public void die(DamageSource source) {
-        if(!this.level().isClientSide() && this.level().getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof ServerPlayer) {
-            this.getOwner().sendSystemMessage(this.getCombatTracker().getDeathMessage());
+        if(this.level() instanceof ServerLevel world && world.getGameRules().get(GameRules.SHOW_DEATH_MESSAGES) && this.getOwner() instanceof ServerPlayer player) {
+            player.sendSystemMessage(this.getCombatTracker().getDeathMessage());
         }
 
         super.die(source);

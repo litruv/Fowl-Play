@@ -4,7 +4,7 @@ import aqario.fowlplay.common.entity.ChickenVariant;
 import aqario.fowlplay.common.network.neoforge.ChickenVariantPayload;
 import aqario.fowlplay.core.neoforge.FowlPlayDataAttachments;
 import net.minecraft.core.Holder;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class DataAttachmentHelperImpl {

@@ -5,21 +5,34 @@ import aqario.fowlplay.client.render.entity.model.GullModel;
 import aqario.fowlplay.common.entity.GullEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
-public class GullRenderer extends MobRenderer<GullEntity, GullModel> {
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
+public class GullRenderer extends MobRenderer<GullEntity, BirdRenderState<GullEntity>, GullModel> {
     public GullRenderer(EntityRendererProvider.Context context) {
         super(context, new GullModel(context.bakeLayer(GullModel.MODEL_LAYER)), 0.3f);
         this.addLayer(new BirdHeldItemLayer<>(
             this,
-            context.getItemInHandRenderer(),
+            context.getEntityRenderDispatcher().getItemInHandRenderer(),
             new Vec3(0.0, -0.085, -0.1475)
         ));
     }
 
     @Override
-    public ResourceLocation getTextureLocation(GullEntity gull) {
-        return gull.getVariant().value().texture();
+    public Identifier getTextureLocation(BirdRenderState<GullEntity> state) {
+        return state.entity.getVariant().value().texture();
+    }
+
+    @Override
+    public BirdRenderState<GullEntity> createRenderState() {
+        return new BirdRenderState<>();
+    }
+
+    @Override
+    public void extractRenderState(GullEntity entity, BirdRenderState<GullEntity> state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.entity = entity;
+        state.partialTick = partialTick;
     }
 }

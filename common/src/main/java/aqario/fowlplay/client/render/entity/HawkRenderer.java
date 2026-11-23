@@ -6,23 +6,36 @@ import aqario.fowlplay.common.entity.HawkEntity;
 import aqario.fowlplay.core.FowlPlay;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
-public class HawkRenderer extends MobRenderer<HawkEntity, HawkModel> {
-    private static final ResourceLocation TEXTURE = FowlPlay.id("textures/entity/hawk/red_tailed_hawk.png");
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
+public class HawkRenderer extends MobRenderer<HawkEntity, BirdRenderState<HawkEntity>, HawkModel> {
+    private static final Identifier TEXTURE = FowlPlay.id("textures/entity/hawk/red_tailed_hawk.png");
 
     public HawkRenderer(EntityRendererProvider.Context context) {
         super(context, new HawkModel(context.bakeLayer(HawkModel.MODEL_LAYER)), 0.3f);
         this.addLayer(new BirdHeldItemLayer<>(
             this,
-            context.getItemInHandRenderer(),
+            context.getEntityRenderDispatcher().getItemInHandRenderer(),
             new Vec3(0.0, -0.05375, -0.1475)
         ));
     }
 
     @Override
-    public ResourceLocation getTextureLocation(HawkEntity hawk) {
+    public Identifier getTextureLocation(BirdRenderState<HawkEntity> state) {
         return TEXTURE;
+    }
+
+    @Override
+    public BirdRenderState<HawkEntity> createRenderState() {
+        return new BirdRenderState<>();
+    }
+
+    @Override
+    public void extractRenderState(HawkEntity entity, BirdRenderState<HawkEntity> state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.entity = entity;
+        state.partialTick = partialTick;
     }
 }

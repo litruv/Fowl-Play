@@ -1,5 +1,5 @@
 package aqario.fowlplay.core;
-
+import net.minecraft.core.registries.BuiltInRegistries;
 import aqario.fowlplay.common.entity.*;
 import aqario.fowlplay.common.util.RegistryBuilder;
 import net.minecraft.core.Registry;

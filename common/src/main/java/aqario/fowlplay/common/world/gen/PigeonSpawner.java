@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class PigeonSpawner implements CustomSpawner {
     @SuppressWarnings("deprecation")
     @Override
     public void tick(ServerLevel level, boolean spawnEnemies) {
-        if(!level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
+        if(!level.getGameRules().get(GameRules.SPAWN_MOBS)
             || FowlPlayConfig.getInstance().pigeonSpawnWeight <= 0
         ) {
             return;

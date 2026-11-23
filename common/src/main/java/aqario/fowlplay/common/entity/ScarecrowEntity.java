@@ -1,7 +1,7 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.core.FowlPlayItems;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.*;
@@ -15,15 +15,12 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -45,8 +42,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class ScarecrowEntity extends LivingEntity implements ContainerListener, MenuProvider {
-    private static final Predicate<Entity> RIDEABLE_MINECART_PREDICATE = entity -> entity instanceof AbstractMinecart
-        && ((AbstractMinecart) entity).getMinecartType() == AbstractMinecart.Type.RIDEABLE;
+    private static final Predicate<Entity> RIDEABLE_MINECART_PREDICATE = entity -> entity instanceof AbstractMinecart minecart
+        && minecart.getType() == EntityType.MINECART;
     private static final Rotations DEFAULT_HEAD_ROTATION = new Rotations(0.0F, 0.0F, 0.0F);
     private static final Rotations DEFAULT_BODY_ROTATION = new Rotations(0.0F, 0.0F, 0.0F);
     private static final Rotations DEFAULT_LEFT_ARM_ROTATION = new Rotations(0.0F, 0.0F, -90.0F);
@@ -85,10 +82,9 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
     }
 
     @Override
-    protected float tickHeadTurn(float bodyRotation, float headRotation) {
+    protected void tickHeadTurn(float bodyRotation) {
         this.yBodyRotO = this.yRotO;
         this.yBodyRot = this.getYRot();
-        return 0.0F;
     }
 
     @Override
@@ -108,8 +104,8 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
     }
 
     @Override
-    protected void dropEquipment() {
-        super.dropEquipment();
+    protected void dropEquipment(ServerLevel world) {
+        super.dropEquipment(world);
 
         if(this.inventory != null) {
             for(int i = 0; i < this.inventory.getContainerSize(); ++i) {
@@ -117,19 +113,14 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
                 if(itemStack.isEmpty()) {
                     continue;
                 }
-                this.spawnAtLocation(itemStack);
+                this.spawnAtLocation(world, itemStack);
             }
         }
     }
 
     @Override
-    public Iterable<ItemStack> getHandSlots() {
-        return ImmutableList.of(this.inventory.getItem(MAINHAND_SLOT), this.inventory.getItem(OFFHAND_SLOT));
-    }
-
-    @Override
-    public Iterable<ItemStack> getArmorSlots() {
-        return ImmutableList.of(this.inventory.getItem(HEAD_SLOT), this.inventory.getItem(CHEST_SLOT));
+    public SlotAccess getSlot(int slot) {
+        return SlotAccess.forListElement(this.inventory.items, slot);
     }
 
     @Override
@@ -145,19 +136,12 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
 
     @Override
     public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
-        this.verifyEquippedItem(stack);
         switch(slot) {
             case HEAD -> this.inventory.setItem(HEAD_SLOT, stack);
             case CHEST -> this.inventory.setItem(CHEST_SLOT, stack);
             case MAINHAND -> this.inventory.setItem(MAINHAND_SLOT, stack);
             case OFFHAND -> this.inventory.setItem(OFFHAND_SLOT, stack);
         }
-    }
-
-    @Override
-    public boolean canTakeItem(ItemStack stack) {
-        EquipmentSlot equipmentSlot = this.getEquipmentSlotForItem(stack);
-        return this.getItemBySlot(equipmentSlot).isEmpty();
     }
 
     @Override
@@ -170,20 +154,25 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.put(ITEMS_KEY, this.inventory.createTag(this.registryAccess()));
-        nbt.put(POSE_KEY, this.poseToNbt());
+        this.inventory.storeAsItemList(nbt.list(ITEMS_KEY, ItemStack.CODEC));
+        ValueOutput pose = nbt.child(POSE_KEY);
+        if(!DEFAULT_HEAD_ROTATION.equals(this.headRotation)) pose.store(HEAD_ROTATION_KEY, Rotations.CODEC, this.headRotation);
+        if(!DEFAULT_BODY_ROTATION.equals(this.bodyRotation)) pose.store(BODY_ROTATION_KEY, Rotations.CODEC, this.bodyRotation);
+        if(!DEFAULT_LEFT_ARM_ROTATION.equals(this.leftArmRotation)) pose.store(LEFT_ARM_ROTATION_KEY, Rotations.CODEC, this.leftArmRotation);
+        if(!DEFAULT_RIGHT_ARM_ROTATION.equals(this.rightArmRotation)) pose.store(RIGHT_ARM_ROTATION_KEY, Rotations.CODEC, this.rightArmRotation);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        if(nbt.contains(ITEMS_KEY, Tag.TAG_LIST)) {
-            this.inventory.fromTag(nbt.getList(ITEMS_KEY, Tag.TAG_COMPOUND), this.registryAccess());
-        }
-        CompoundTag poseNbt = nbt.getCompound(POSE_KEY);
-        this.readPoseNbt(poseNbt);
+        this.inventory.fromItemList(nbt.listOrEmpty(ITEMS_KEY, ItemStack.CODEC));
+        ValueInput pose = nbt.childOrEmpty(POSE_KEY);
+        this.setHeadRotation(pose.read(HEAD_ROTATION_KEY, Rotations.CODEC).orElse(DEFAULT_HEAD_ROTATION));
+        this.setBodyRotation(pose.read(BODY_ROTATION_KEY, Rotations.CODEC).orElse(DEFAULT_BODY_ROTATION));
+        this.setLeftArmRotation(pose.read(LEFT_ARM_ROTATION_KEY, Rotations.CODEC).orElse(DEFAULT_LEFT_ARM_ROTATION));
+        this.setRightArmRotation(pose.read(RIGHT_ARM_ROTATION_KEY, Rotations.CODEC).orElse(DEFAULT_RIGHT_ARM_ROTATION));
     }
 
     @Override
@@ -201,7 +190,7 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(Entity entity) {
         return true;
     }
 
@@ -225,35 +214,35 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if(this.level().isClientSide() || this.isRemoved()) {
+    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
+        if(this.isRemoved()) {
             return false;
         }
         if(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            this.kill();
+            this.kill(world);
             return false;
         }
-        if(this.isInvulnerableTo(source)) {
+        if(this.isInvulnerableTo(world, source)) {
             return false;
         }
         if(source.getDirectEntity() instanceof FireworkRocketEntity) {
             return false;
         }
         if(source.is(DamageTypeTags.IS_EXPLOSION)) {
-            this.updateHealth(source, amount);
+            this.updateHealth(world, source, amount);
             return false;
         }
         if(source.is(DamageTypes.LAVA)) {
             this.igniteForSeconds(10);
             if(this.isOnFire()) {
-                this.updateHealth(source, 1.0F);
+                this.updateHealth(world, source, 1.0F);
             }
             return false;
         }
         if(source.is(DamageTypeTags.IS_FIRE)) {
             this.igniteForSeconds(5);
             if(this.isOnFire()) {
-                this.updateHealth(source, 0.05F);
+                this.updateHealth(world, source, 0.05F);
             }
             return false;
         }
@@ -269,20 +258,20 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
                 return false;
             }
             if(source.isCreativePlayer()) {
-                this.onBreak(source);
+                this.onBreak(world, source);
                 this.spawnBreakParticles();
-                this.kill();
+                this.kill(world);
                 return false;
             }
-            this.breakAndDropThis(source);
+            this.breakAndDropThis(world, source);
             this.spawnBreakParticles();
-            this.kill();
+            this.kill(world);
         }
         return true;
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource damageSource) {
+    public boolean isInvulnerableTo(ServerLevel world, DamageSource damageSource) {
         return damageSource.is(DamageTypeTags.IS_FALL);
     }
 
@@ -291,7 +280,7 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
     }
 
     @Override
-    public void kill() {
+    public void kill(ServerLevel world) {
         this.remove(RemovalReason.KILLED);
         this.gameEvent(GameEvent.ENTITY_DIE);
     }
@@ -312,12 +301,12 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
         }
     }
 
-    private void updateHealth(DamageSource damageSource, float amount) {
+    private void updateHealth(ServerLevel world, DamageSource damageSource, float amount) {
         float f = this.getHealth();
         f -= amount;
         if(f <= 0.5F) {
-            this.onBreak(damageSource);
-            this.kill();
+            this.onBreak(world, damageSource);
+            this.kill(world);
         }
         else {
             this.setHealth(f);
@@ -325,51 +314,18 @@ public class ScarecrowEntity extends LivingEntity implements ContainerListener, 
         }
     }
 
-    private void breakAndDropThis(DamageSource damageSource) {
-        Block.popResource(this.level(), this.blockPosition(), this.getItem());
-        this.onBreak(damageSource);
+    private void breakAndDropThis(ServerLevel world, DamageSource damageSource) {
+        Block.popResource(world, this.blockPosition(), this.getItem());
+        this.onBreak(world, damageSource);
     }
 
-    private void onBreak(DamageSource damageSource) {
+    private void onBreak(ServerLevel world, DamageSource damageSource) {
         this.playBreakSound();
-        this.dropAllDeathLoot((ServerLevel) this.level(), damageSource);
+        this.dropAllDeathLoot(world, damageSource);
     }
 
     private void playBreakSound() {
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(), this.getDeathSound(), this.getSoundSource(), 1.0F, 1.0F);
-    }
-
-    private void readPoseNbt(CompoundTag nbt) {
-        ListTag head = nbt.getList(HEAD_ROTATION_KEY, Tag.TAG_FLOAT);
-        ListTag body = nbt.getList(BODY_ROTATION_KEY, Tag.TAG_FLOAT);
-        ListTag leftArm = nbt.getList(LEFT_ARM_ROTATION_KEY, Tag.TAG_FLOAT);
-        ListTag rightArm = nbt.getList(RIGHT_ARM_ROTATION_KEY, Tag.TAG_FLOAT);
-
-        this.setHeadRotation(head.isEmpty() ? DEFAULT_HEAD_ROTATION : new Rotations(head));
-        this.setBodyRotation(body.isEmpty() ? DEFAULT_BODY_ROTATION : new Rotations(body));
-        this.setLeftArmRotation(leftArm.isEmpty() ? DEFAULT_LEFT_ARM_ROTATION : new Rotations(leftArm));
-        this.setRightArmRotation(rightArm.isEmpty() ? DEFAULT_RIGHT_ARM_ROTATION : new Rotations(rightArm));
-    }
-
-    private CompoundTag poseToNbt() {
-        CompoundTag nbt = new CompoundTag();
-        if(!DEFAULT_HEAD_ROTATION.equals(this.headRotation)) {
-            nbt.put(HEAD_ROTATION_KEY, this.headRotation.save());
-        }
-
-        if(!DEFAULT_BODY_ROTATION.equals(this.bodyRotation)) {
-            nbt.put(BODY_ROTATION_KEY, this.bodyRotation.save());
-        }
-
-        if(!DEFAULT_LEFT_ARM_ROTATION.equals(this.leftArmRotation)) {
-            nbt.put(LEFT_ARM_ROTATION_KEY, this.leftArmRotation.save());
-        }
-
-        if(!DEFAULT_RIGHT_ARM_ROTATION.equals(this.rightArmRotation)) {
-            nbt.put(RIGHT_ARM_ROTATION_KEY, this.rightArmRotation.save());
-        }
-
-        return nbt;
     }
 
     public Rotations getHeadRotation() {

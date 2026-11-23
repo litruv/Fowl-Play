@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.memory.*;
 import net.minecraft.world.phys.Vec3;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 import java.util.function.Function;
@@ -37,9 +37,9 @@ public class SetWalkTargetAwayFrom<E extends BirdEntity, T> extends SpeedModifia
     @Override
     protected void start(E entity) {
         Brain<?> brain = entity.getBrain();
-        WalkTarget walkTarget = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
+        WalkTarget walkTarget = BrainUtil.getMemory(brain, MemoryModuleType.WALK_TARGET);
         Vec3 curPos = entity.position();
-        Vec3 fleeTargetPos = this.targetPosition.apply(BrainUtils.getMemory(brain, this.memoryType));
+        Vec3 fleeTargetPos = this.targetPosition.apply(BrainUtil.getMemory(brain, this.memoryType));
         if(walkTarget != null && walkTarget.getSpeedModifier() == this.speedModifier.apply(entity, walkTarget.getTarget().currentPosition())) {
             Vec3 vec3d3 = walkTarget.getTarget().currentPosition().subtract(curPos);
             Vec3 distanceVec = fleeTargetPos.subtract(curPos);
@@ -51,8 +51,8 @@ public class SetWalkTargetAwayFrom<E extends BirdEntity, T> extends SpeedModifia
         for(int j = 0; j < 10; j++) {
             Vec3 target = LandRandomPos.getPosAway(entity, 16, 16, fleeTargetPos);
             if(target != null) {
-                BrainUtils.setMemory(brain, MemoryModuleType.LOOK_TARGET, new BlockPosTracker(target));
-                BrainUtils.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(target, this.speedModifier.apply(entity, target), 0));
+                BrainUtil.setMemory(brain, MemoryModuleType.LOOK_TARGET, new BlockPosTracker(target));
+                BrainUtil.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(target, this.speedModifier.apply(entity, target), 0));
                 break;
             }
         }

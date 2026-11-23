@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Optional;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public record GooseVariant(
     String id,
     ModelType modelType,
-    Optional<ResourceLocation> domesticId
+    Optional<Identifier> domesticId
 ) {
     public static final StreamCodec<RegistryFriendlyByteBuf, Holder<GooseVariant>> PACKET_CODEC = ByteBufCodecs.holderRegistry(FowlPlayRegistries.GOOSE_VARIANT);
     public static final ResourceKey<GooseVariant> CANADA = registerWild("canada");
@@ -26,7 +26,7 @@ public record GooseVariant(
     public static final ResourceKey<GooseVariant> EMDEN = registerDomestic("emden");
     public static final ResourceKey<GooseVariant> CHINESE = registerDomestic("chinese");
 
-    public ResourceLocation texture(boolean isBaby) {
+    public Identifier texture(boolean isBaby) {
         return FowlPlay.id(new PathBuilder()
             .add("textures/entity/goose/")
             .addIf("baby_", isBaby)

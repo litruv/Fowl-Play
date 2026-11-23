@@ -1,13 +1,15 @@
 package aqario.fowlplay.client.render.entity.model;
 
 import aqario.fowlplay.client.render.entity.animation.ChickenAnimations;
+import aqario.fowlplay.client.render.entity.state.BirdRenderState;
 import aqario.fowlplay.common.util.ChickenAnimationHolder;
 import aqario.fowlplay.core.FowlPlay;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 
 public class CustomBabyChickenModel extends CustomChickenModel {
     public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(FowlPlay.id("baby_chicken"), "main");
@@ -55,14 +57,16 @@ public class CustomBabyChickenModel extends CustomChickenModel {
     }
 
     @Override
-    public void setupAnim(Chicken chicken, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.root().getAllParts().forEach(ModelPart::resetPose);
-        this.updateHeadRotation(netHeadYaw, headPitch);
+    public void setupAnim(BirdRenderState<Chicken> state) {
+        this.resetPose();
+
+        Chicken chicken = state.entity;
+        this.updateHeadRotation(Mth.wrapDegrees(state.yRot - state.bodyRot), state.xRot);
 
         if(chicken.onGround() && !chicken.isInWater()) {
-            this.animateWalk(ChickenAnimations.WALKING, limbSwing, limbSwingAmount, 3F, 3F);
+            this.animateWalk(ChickenAnimations.WALKING, state.walkAnimationPos, state.walkAnimationSpeed, 3F, 3F);
         }
-        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getStandingState(), ChickenAnimations.STANDING, ageInTicks);
-        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getFloatingState(), ChickenAnimations.SWIMMING, ageInTicks);
+        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getStandingState(), ChickenAnimations.STANDING, state.ageInTicks);
+        this.animate(((ChickenAnimationHolder) chicken).fowlplay$getFloatingState(), ChickenAnimations.SWIMMING, state.ageInTicks);
     }
 }

@@ -31,7 +31,7 @@ public class TargetingUtil {
             );
         }
         else if(entity.getY() < surfaceY) {
-            adjustedPos = RandomPos.moveUpOutOfSolid(adjustedPos, entity.level().getMaxBuildHeight(), currentPos ->
+            adjustedPos = RandomPos.moveUpOutOfSolid(adjustedPos, entity.level().dimensionType().logicalHeight(), currentPos ->
                 GoalUtils.isSolid(entity, currentPos) || GoalUtils.isWater(entity, currentPos)
             );
         }
@@ -184,7 +184,7 @@ public class TargetingUtil {
     }
 
     public static boolean isFullBlockAt(PathfinderMob entity, BlockPos pos) {
-        return entity.level().getBlockState(pos).isSolidRender(entity.level(), pos);
+        return entity.level().getBlockState(pos).isSolidRender();
     }
 
     // angle is in radians

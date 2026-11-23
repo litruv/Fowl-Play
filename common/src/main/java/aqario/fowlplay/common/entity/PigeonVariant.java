@@ -8,9 +8,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public record PigeonVariant(ResourceLocation texture) {
+public record PigeonVariant(Identifier texture) {
     public static final StreamCodec<RegistryFriendlyByteBuf, Holder<PigeonVariant>> PACKET_CODEC = ByteBufCodecs.holderRegistry(FowlPlayRegistries.PIGEON_VARIANT);
     public static final ResourceKey<PigeonVariant> BANDED = register("banded");
     public static final ResourceKey<PigeonVariant> CHECKERED = register("checkered");
@@ -20,7 +20,7 @@ public record PigeonVariant(ResourceLocation texture) {
 
     private static ResourceKey<PigeonVariant> register(String id) {
         ResourceKey<PigeonVariant> key = ResourceKey.create(FowlPlayRegistries.PIGEON_VARIANT, FowlPlay.id(id));
-        ResourceLocation texture = FowlPlay.id("textures/entity/pigeon/" + key.location().getPath() + "_pigeon.png");
+        Identifier texture = FowlPlay.id("textures/entity/pigeon/" + key.identifier().getPath() + "_pigeon.png");
         PlatformHelper.registerVariant(id, key, () -> new PigeonVariant(texture));
         return key;
     }

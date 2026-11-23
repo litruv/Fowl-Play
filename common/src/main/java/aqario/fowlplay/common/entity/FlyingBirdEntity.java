@@ -1,5 +1,6 @@
 package aqario.fowlplay.common.entity;
-
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.entity.ai.navigation.FlightNavigation;
 import aqario.fowlplay.common.entity.ai.navigation.GroundNavigation;
 import aqario.fowlplay.common.util.Birds;
@@ -109,15 +110,15 @@ public abstract class FlyingBirdEntity extends BirdEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("flying", this.isFlying());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        this.setFlying(nbt.getBoolean("flying"));
+        this.setFlying(nbt.getBooleanOr("flying", false));
     }
 
     @Override
@@ -227,7 +228,7 @@ public abstract class FlyingBirdEntity extends BirdEntity {
     protected FlightNavigation getFlightNavigation() {
         FlightNavigation navigation = new FlightNavigation(this, this.level());
         navigation.setCanOpenDoors(false);
-        navigation.setCanPassDoors(true);
+        navigation.setCanOpenDoors(true);
         navigation.setCanFloat(this.canSwim());
         return navigation;
     }
@@ -272,7 +273,7 @@ public abstract class FlyingBirdEntity extends BirdEntity {
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
+    public boolean causeFallDamage(double fallDistance, float damageMultiplier, DamageSource damageSource) {
         return !this.isFlying() && super.causeFallDamage(fallDistance, damageMultiplier, damageSource);
     }
 
@@ -369,7 +370,7 @@ public abstract class FlyingBirdEntity extends BirdEntity {
         else {
             speed = Math.min(posDelta * 4.0F, 1.0F);
         }
-        this.walkAnimation.update(speed, 0.4F);
+        this.walkAnimation.update(speed, 0.4F, this.tickCount);
     }
 
     @Override
@@ -383,7 +384,7 @@ public abstract class FlyingBirdEntity extends BirdEntity {
             return;
         }
 
-        if(this.isControlledByLocalInstance()) {
+        if(this.isLocalInstanceAuthoritative()) {
             if(this.isInWater()) {
                 this.moveRelative(this.isBelowWaterline() ? 0.02F : this.getSpeed(), movementInput);
                 this.move(MoverType.SELF, this.getDeltaMovement());

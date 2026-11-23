@@ -6,7 +6,7 @@ import aqario.fowlplay.datagen.provider.SoundDefinition;
 import aqario.fowlplay.datagen.provider.SoundDefinitionsProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.concurrent.CompletableFuture;
@@ -78,7 +78,7 @@ public class FowlPlaySoundDefinitionsGen extends SoundDefinitionsProvider {
         for(int i = start; i <= end; i++) {
             definition.with(sound(FowlPlay.id(location + i)));
         }
-        definition.subtitle("subtitles." + soundEvent.getLocation().getPath());
+        definition.subtitle("subtitles." + soundEvent.location().getPath());
         this.add(soundEvent, definition);
     }
 
@@ -89,16 +89,16 @@ public class FowlPlaySoundDefinitionsGen extends SoundDefinitionsProvider {
     private void addOne(SoundEvent soundEvent, String location) {
         SoundDefinition definition = SoundDefinition.builder()
             .with(sound(FowlPlay.id(location)))
-            .subtitle("subtitles." + soundEvent.getLocation().getPath());
+            .subtitle("subtitles." + soundEvent.location().getPath());
         this.add(soundEvent, definition);
     }
 
     private void addVariousVanilla(SoundEvent soundEvent, String location, int start, int end) {
         SoundDefinition definition = SoundDefinition.builder();
         for(int i = start; i <= end; i++) {
-            definition.with(sound(ResourceLocation.withDefaultNamespace(location + i)));
+            definition.with(sound(Identifier.withDefaultNamespace(location + i)));
         }
-        definition.subtitle("subtitles." + soundEvent.getLocation().getPath());
+        definition.subtitle("subtitles." + soundEvent.location().getPath());
         this.add(soundEvent, definition);
     }
 
@@ -108,8 +108,8 @@ public class FowlPlaySoundDefinitionsGen extends SoundDefinitionsProvider {
 
     private void addVanilla(SoundEvent soundEvent, String location) {
         SoundDefinition definition = SoundDefinition.builder()
-            .with(sound(ResourceLocation.withDefaultNamespace(location)))
-            .subtitle("subtitles." + soundEvent.getLocation().getPath());
+            .with(sound(Identifier.withDefaultNamespace(location)))
+            .subtitle("subtitles." + soundEvent.location().getPath());
         this.add(soundEvent, definition);
     }
 }

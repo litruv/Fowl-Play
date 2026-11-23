@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,10 +40,10 @@ public class PigeonSpecificSensor extends PredicateSensor<UUID, PigeonEntity> {
     @Override
     protected void doTick(ServerLevel world, PigeonEntity pigeon) {
         if (this.predicate().test(null, pigeon)) {
-            BrainUtils.setMemory(pigeon, FowlPlayMemoryTypes.RECIPIENT.get(), pigeon.getRecipientUuid());
+            BrainUtil.setMemory(pigeon, FowlPlayMemoryTypes.RECIPIENT.get(), pigeon.getRecipientUuid());
         }
         else {
-            BrainUtils.clearMemory(pigeon, FowlPlayMemoryTypes.RECIPIENT.get());
+            BrainUtil.clearMemory(pigeon, FowlPlayMemoryTypes.RECIPIENT.get());
         }
     }
 }

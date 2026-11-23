@@ -11,7 +11,7 @@ import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.util.valueproviders.FloatProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.object.FreePositionTracker;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class SetRandomLookTarget<E extends Mob> extends ExtendedBehaviour<E> {
 
     @Override
     protected boolean shouldKeepRunning(E entity) {
-        return !BrainUtils.hasMemory(entity, MemoryModuleType.WALK_TARGET);
+        return !BrainUtil.hasMemory(entity, MemoryModuleType.WALK_TARGET);
     }
 
     @Override
@@ -66,6 +66,6 @@ public class SetRandomLookTarget<E extends Mob> extends ExtendedBehaviour<E> {
 
         int lookTime = entity.getRandom().nextIntBetweenInclusive(15, 60);
         this.timeUntilNextLook = entity.level().getGameTime() + lookTime;
-        BrainUtils.setForgettableMemory(entity, MemoryModuleType.LOOK_TARGET, new FreePositionTracker(entity.getEyePosition().add(Math.cos(angle), 0, Math.sin(angle))), lookTime);
+        BrainUtil.setForgettableMemory(entity, MemoryModuleType.LOOK_TARGET, new FreePositionTracker(entity.getEyePosition().add(Math.cos(angle), 0, Math.sin(angle))), lookTime);
     }
 }

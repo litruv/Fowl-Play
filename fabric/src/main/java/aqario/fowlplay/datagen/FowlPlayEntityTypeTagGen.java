@@ -5,22 +5,22 @@ import aqario.fowlplay.core.tags.FowlPlayEntityTypeTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.concurrent.CompletableFuture;
 
 public class FowlPlayEntityTypeTagGen extends FabricTagProvider.EntityTypeTagProvider {
-    private static final ResourceLocation ANCIENTSCALE = ResourceLocation.fromNamespaceAndPath("fishofthieves", "ancientscale");
-    private static final ResourceLocation BATTLEGILL = ResourceLocation.fromNamespaceAndPath("fishofthieves", "battlegill");
-    private static final ResourceLocation DEVILFISH = ResourceLocation.fromNamespaceAndPath("fishofthieves", "devilfish");
-    private static final ResourceLocation ISLEHOPPER = ResourceLocation.fromNamespaceAndPath("fishofthieves", "islehopper");
-    private static final ResourceLocation PLENTIFIN = ResourceLocation.fromNamespaceAndPath("fishofthieves", "plentifin");
-    private static final ResourceLocation PONDIE = ResourceLocation.fromNamespaceAndPath("fishofthieves", "pondie");
-    private static final ResourceLocation SPLASHTAIL = ResourceLocation.fromNamespaceAndPath("fishofthieves", "splashtail");
-    private static final ResourceLocation STORMFISH = ResourceLocation.fromNamespaceAndPath("fishofthieves", "stormfish");
-    private static final ResourceLocation WILDSPLASH = ResourceLocation.fromNamespaceAndPath("fishofthieves", "wildsplash");
+    private static final Identifier ANCIENTSCALE = Identifier.fromNamespaceAndPath("fishofthieves", "ancientscale");
+    private static final Identifier BATTLEGILL = Identifier.fromNamespaceAndPath("fishofthieves", "battlegill");
+    private static final Identifier DEVILFISH = Identifier.fromNamespaceAndPath("fishofthieves", "devilfish");
+    private static final Identifier ISLEHOPPER = Identifier.fromNamespaceAndPath("fishofthieves", "islehopper");
+    private static final Identifier PLENTIFIN = Identifier.fromNamespaceAndPath("fishofthieves", "plentifin");
+    private static final Identifier PONDIE = Identifier.fromNamespaceAndPath("fishofthieves", "pondie");
+    private static final Identifier SPLASHTAIL = Identifier.fromNamespaceAndPath("fishofthieves", "splashtail");
+    private static final Identifier STORMFISH = Identifier.fromNamespaceAndPath("fishofthieves", "stormfish");
+    private static final Identifier WILDSPLASH = Identifier.fromNamespaceAndPath("fishofthieves", "wildsplash");
 
     public FowlPlayEntityTypeTagGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
         super(output, completableFuture);
@@ -29,7 +29,7 @@ public class FowlPlayEntityTypeTagGen extends FabricTagProvider.EntityTypeTagPro
     @Override
     protected void addTags(HolderLookup.Provider lookup) {
         // Birds
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.BIRDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.BIRDS)
             .add(EntityType.CHICKEN)
             .add(EntityType.PARROT)
             .add(FowlPlayEntityTypes.BLUE_JAY.get())
@@ -47,11 +47,11 @@ public class FowlPlayEntityTypeTagGen extends FabricTagProvider.EntityTypeTagPro
             .add(FowlPlayEntityTypes.SPARROW.get());
 
         // Flightless
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.FLIGHTLESS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.FLIGHTLESS)
             .add(FowlPlayEntityTypes.PENGUIN.get());
 
         // Passerines
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.PASSERINES)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.PASSERINES)
             .add(FowlPlayEntityTypes.BLUE_JAY.get())
             .add(FowlPlayEntityTypes.CARDINAL.get())
             .add(FowlPlayEntityTypes.CHICKADEE.get())
@@ -61,114 +61,117 @@ public class FowlPlayEntityTypeTagGen extends FabricTagProvider.EntityTypeTagPro
             .add(FowlPlayEntityTypes.SPARROW.get());
 
         // Seabirds
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.SEABIRDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.SEABIRDS)
             .add(FowlPlayEntityTypes.GULL.get());
 
         // Waterbirds
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.WATERBIRDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.WATERBIRDS)
             .add(FowlPlayEntityTypes.DUCK.get())
             .add(FowlPlayEntityTypes.GOOSE.get())
             .add(FowlPlayEntityTypes.GULL.get())
             .add(FowlPlayEntityTypes.PENGUIN.get());
 
         // Waterfowl
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.WATERFOWL)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.WATERFOWL)
             .add(FowlPlayEntityTypes.DUCK.get())
             .add(FowlPlayEntityTypes.GOOSE.get());
 
         // Entities to avoid
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.BLUE_JAY_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.BLUE_JAY_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.CARDINAL_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.CARDINAL_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.CHICKADEE_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.CHICKADEE_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.CROW_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.CROW_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.DUCK_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.DUCK_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.GOOSE_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.GOOSE_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.GULL_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.GULL_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.HAWK_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.HAWK_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.PENGUIN_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.PENGUIN_AVOIDS)
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.PIGEON_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.PIGEON_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.RAVEN_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.RAVEN_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.ROBIN_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.ROBIN_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.SPARROW_AVOIDS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.SPARROW_AVOIDS)
             .add(EntityType.PLAYER)
             .add(FowlPlayEntityTypes.SCARECROW.get())
             .add(FowlPlayEntityTypes.HAWK.get());
 
         // Hunted when the target is an adult
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.GULL_HUNT_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.GULL_HUNT_TARGETS)
             .add(EntityType.TROPICAL_FISH)
             .add(EntityType.SALMON)
             .add(EntityType.COD)
-            .add(EntityType.TADPOLE)
-            .addOptional(ANCIENTSCALE)
-            .addOptional(BATTLEGILL)
-            .addOptional(DEVILFISH)
-            .addOptional(PLENTIFIN)
-            .addOptional(PONDIE)
-            .addOptional(SPLASHTAIL)
-            .addOptional(STORMFISH)
-            .addOptional(WILDSPLASH);
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.HAWK_HUNT_TARGETS)
+            .add(EntityType.TADPOLE);
+        // TagAppender takes values only, so external entries go through the raw builder.
+        this.getOrCreateRawBuilder(FowlPlayEntityTypeTags.GULL_HUNT_TARGETS)
+            .addOptionalElement(ANCIENTSCALE)
+            .addOptionalElement(BATTLEGILL)
+            .addOptionalElement(DEVILFISH)
+            .addOptionalElement(PLENTIFIN)
+            .addOptionalElement(PONDIE)
+            .addOptionalElement(SPLASHTAIL)
+            .addOptionalElement(STORMFISH)
+            .addOptionalElement(WILDSPLASH);
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.HAWK_HUNT_TARGETS)
             .add(EntityType.CHICKEN)
             .add(EntityType.FROG)
             .add(EntityType.RABBIT)
             .add(FowlPlayEntityTypes.PIGEON.get())
             .add(FowlPlayEntityTypes.SPARROW.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.PENGUIN_HUNT_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.PENGUIN_HUNT_TARGETS)
             .add(EntityType.TROPICAL_FISH)
             .add(EntityType.SALMON)
             .add(EntityType.COD)
             .add(EntityType.SQUID)
             .add(EntityType.GLOW_SQUID)
-            .add(EntityType.TADPOLE)
-            .addOptional(ANCIENTSCALE)
-            .addOptional(BATTLEGILL)
-            .addOptional(DEVILFISH)
-            .addOptional(PLENTIFIN)
-            .addOptional(PONDIE)
-            .addOptional(SPLASHTAIL)
-            .addOptional(STORMFISH)
-            .addOptional(WILDSPLASH);
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.RAVEN_HUNT_TARGETS);
+            .add(EntityType.TADPOLE);
+        this.getOrCreateRawBuilder(FowlPlayEntityTypeTags.PENGUIN_HUNT_TARGETS)
+            .addOptionalElement(ANCIENTSCALE)
+            .addOptionalElement(BATTLEGILL)
+            .addOptionalElement(DEVILFISH)
+            .addOptionalElement(PLENTIFIN)
+            .addOptionalElement(PONDIE)
+            .addOptionalElement(SPLASHTAIL)
+            .addOptionalElement(STORMFISH)
+            .addOptionalElement(WILDSPLASH);
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.RAVEN_HUNT_TARGETS);
 
         // Hunted when the target is a baby
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.GULL_BABY_HUNT_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.GULL_BABY_HUNT_TARGETS)
             .add(EntityType.CHICKEN)
             .add(EntityType.TURTLE);
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.HAWK_BABY_HUNT_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.HAWK_BABY_HUNT_TARGETS)
             .add(EntityType.CHICKEN)
             .add(EntityType.RABBIT)
             .add(FowlPlayEntityTypes.BLUE_JAY.get())
@@ -182,7 +185,7 @@ public class FowlPlayEntityTypeTagGen extends FabricTagProvider.EntityTypeTagPro
             .add(FowlPlayEntityTypes.RAVEN.get())
             .add(FowlPlayEntityTypes.ROBIN.get())
             .add(FowlPlayEntityTypes.SPARROW.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.RAVEN_BABY_HUNT_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.RAVEN_BABY_HUNT_TARGETS)
             .add(EntityType.CHICKEN)
             .add(EntityType.RABBIT)
             .add(FowlPlayEntityTypes.BLUE_JAY.get())
@@ -198,19 +201,19 @@ public class FowlPlayEntityTypeTagGen extends FabricTagProvider.EntityTypeTagPro
             .add(FowlPlayEntityTypes.SPARROW.get());
 
         // Entities to attack
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.CROW_ATTACK_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.CROW_ATTACK_TARGETS)
             .add(FowlPlayEntityTypes.HAWK.get());
-        this.getOrCreateTagBuilder(FowlPlayEntityTypeTags.RAVEN_ATTACK_TARGETS)
+        this.valueLookupBuilder(FowlPlayEntityTypeTags.RAVEN_ATTACK_TARGETS)
             .add(FowlPlayEntityTypes.HAWK.get());
 
         // Vanilla entity tags
-        this.getOrCreateTagBuilder(EntityTypeTags.AQUATIC)
+        this.valueLookupBuilder(EntityTypeTags.AQUATIC)
             .setReplace(false)
             .add(FowlPlayEntityTypes.PENGUIN.get());
-        this.getOrCreateTagBuilder(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES)
+        this.valueLookupBuilder(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES)
             .setReplace(false)
             .add(FowlPlayEntityTypes.PENGUIN.get());
-        this.getOrCreateTagBuilder(EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS)
+        this.valueLookupBuilder(EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS)
             .setReplace(false)
             .add(FowlPlayEntityTypes.PENGUIN.get());
     }

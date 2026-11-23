@@ -1,5 +1,6 @@
-package aqario.fowlplay.common.entity;
-
+package aqario.fowlplay.common.entity;import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import aqario.fowlplay.common.config.FowlPlayConfig;
 import aqario.fowlplay.common.entity.ai.brain.BirdBrain;
 import aqario.fowlplay.common.entity.ai.brain.behaviour.*;
@@ -22,7 +23,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -40,7 +41,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -67,7 +68,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class GooseEntity extends TrustingBirdEntity implements BirdBrain<GooseEntity>, VariantHolder<Holder<GooseVariant>>, Domesticatable, Flocking {
+public class GooseEntity extends TrustingBirdEntity implements BirdBrain<GooseEntity>, Domesticatable, Flocking {
     private static final EntityDataAccessor<Holder<GooseVariant>> VARIANT = SynchedEntityData.defineId(
         GooseEntity.class,
         FowlPlayEntityDataSerializers.GOOSE_VARIANT
@@ -125,10 +126,10 @@ public class GooseEntity extends TrustingBirdEntity implements BirdBrain<GooseEn
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
-        GooseEntity goose = FowlPlayEntityTypes.GOOSE.get().create(level);
+        GooseEntity goose = FowlPlayEntityTypes.GOOSE.get().create(level, EntitySpawnReason.BREEDING);
         if(goose != null && otherParent instanceof GooseEntity parent2) {
             getRandomOf(goose.getRandom(), this, parent2).getVariant().value().domesticId()
-                .flatMap(FowlPlayBuiltInRegistries.GOOSE_VARIANT::getHolder)
+                .flatMap(FowlPlayBuiltInRegistries.GOOSE_VARIANT::get)
                 .ifPresent(goose::setVariant);
         }
         return goose;
@@ -191,15 +192,13 @@ public class GooseEntity extends TrustingBirdEntity implements BirdBrain<GooseEn
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(CLIPPED, false);
-        builder.define(VARIANT, FowlPlayBuiltInRegistries.GOOSE_VARIANT.getHolderOrThrow(GooseVariant.CANADA));
+        builder.define(VARIANT, FowlPlayBuiltInRegistries.GOOSE_VARIANT.getOrThrow(GooseVariant.CANADA));
     }
 
-    @Override
     public Holder<GooseVariant> getVariant() {
         return this.entityData.get(VARIANT);
     }
 
-    @Override
     public void setVariant(Holder<GooseVariant> variant) {
         this.entityData.set(VARIANT, variant);
     }
@@ -209,25 +208,25 @@ public class GooseEntity extends TrustingBirdEntity implements BirdBrain<GooseEn
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(ValueOutput nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean(CLIPPED_KEY, this.hasClippedWings());
-        nbt.putString(VARIANT_KEY, this.getVariantKey().location().toString());
+        nbt.putString(VARIANT_KEY, this.getVariantKey().identifier().toString());
         if(this.aggressive) {
             nbt.putBoolean(AGGRESSIVE_KEY, true);
         }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(ValueInput nbt) {
         super.readAdditionalSaveData(nbt);
-        this.setClippedWings(nbt.getBoolean(CLIPPED_KEY));
-        Optional.ofNullable(ResourceLocation.tryParse(nbt.getString(VARIANT_KEY)))
+        this.setClippedWings(nbt.getBooleanOr(CLIPPED_KEY, false));
+        Optional.ofNullable(Identifier.tryParse(nbt.getString(VARIANT_KEY).orElse("")))
             .map(variant -> ResourceKey.create(FowlPlayRegistries.GOOSE_VARIANT, variant))
-            .flatMap(FowlPlayBuiltInRegistries.GOOSE_VARIANT::getHolder)
+            .flatMap(FowlPlayBuiltInRegistries.GOOSE_VARIANT::get)
             .ifPresent(this::setVariant);
-        if(nbt.contains(AGGRESSIVE_KEY, Tag.TAG_ANY_NUMERIC)) {
-            this.aggressive = nbt.getBoolean(AGGRESSIVE_KEY);
+        if(nbt.getBooleanOr(AGGRESSIVE_KEY, false)) {
+            this.aggressive = nbt.getBooleanOr(AGGRESSIVE_KEY, false);
         }
     }
 
@@ -238,16 +237,16 @@ public class GooseEntity extends TrustingBirdEntity implements BirdBrain<GooseEn
 
     @Override
     public boolean canHoldItem(ItemStack stack) {
-        return super.canHoldItem(stack) || (this.isAggressive() && stack.getItem() instanceof SwordItem);
+        return super.canHoldItem(stack) || (this.isAggressive() && stack.is(ItemTags.SWORDS));
     }
 
     @Override
     public boolean shouldDropBeakItem(ItemStack stack) {
-        return super.shouldDropBeakItem(stack) && !(this.isAggressive() && stack.getItem() instanceof SwordItem);
+        return super.shouldDropBeakItem(stack) && !(this.isAggressive() && stack.is(ItemTags.SWORDS));
     }
 
     public Ingredient getFood() {
-        return Ingredient.of(FowlPlayItemTags.GOOSE_FOOD);
+        return Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(FowlPlayItemTags.GOOSE_FOOD));
     }
 
     @Override

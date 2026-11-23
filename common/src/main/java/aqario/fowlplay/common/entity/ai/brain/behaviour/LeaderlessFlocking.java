@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 
@@ -51,10 +51,10 @@ public class LeaderlessFlocking extends ExtendedBehaviour<FlyingBirdEntity> {
             return false;
         }
         Brain<?> brain = bird.getBrain();
-        if(!BrainUtils.hasMemory(brain, FowlPlayMemoryTypes.NEAREST_VISIBLE_ADULTS.get())) {
+        if(!BrainUtil.hasMemory(brain, FowlPlayMemoryTypes.NEAREST_VISIBLE_ADULTS.get())) {
             return false;
         }
-        this.nearbyBirds = BrainUtils.getMemory(brain, FowlPlayMemoryTypes.NEAREST_VISIBLE_ADULTS.get());
+        this.nearbyBirds = BrainUtil.getMemory(brain, FowlPlayMemoryTypes.NEAREST_VISIBLE_ADULTS.get());
         // noinspection ConstantConditions
         this.nearbyBirds.removeIf(entity -> !entity.closerThan(bird, VIEW_RADIUS));
 

@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.List;
 
@@ -30,10 +30,10 @@ public class SetPerchWalkTarget<E extends FlyingBirdEntity> extends ExtendedBeha
         Brain<?> brain = entity.getBrain();
         Vec3 target = BirdRandomPos.getPerch(entity, RANGE);
         if(target != null) {
-            BrainUtils.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(target, 1.0f, 0));
+            BrainUtil.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(target, 1.0f, 0));
         }
         else {
-            BrainUtils.clearMemory(brain, MemoryModuleType.WALK_TARGET);
+            BrainUtil.clearMemory(brain, MemoryModuleType.WALK_TARGET);
         }
     }
 }

@@ -19,43 +19,33 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Map;
+
 @Mixin(FenceGateBlock.class)
 public abstract class FenceGateBlockMixin extends HorizontalDirectionalBlock {
     @Shadow
     @Final
-    protected static VoxelShape X_COLLISION_SHAPE;
-    @Shadow
-    @Final
-    protected static VoxelShape Z_COLLISION_SHAPE;
+    protected static Map<Direction.Axis, VoxelShape> SHAPE_COLLISION;
 
     protected FenceGateBlockMixin(BlockBehaviour.Properties settings) {
         super(settings);
     }
 
-    @Inject(method = "getCollisionShape", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
+    @Inject(method = "getCollisionShape", at = @At("RETURN"), cancellable = true)
     private void fowlplay$lowerFenceGateHeight(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
         if(context instanceof EntityCollisionContext entityContext
             && entityContext.getEntity() != null
             && Birds.isNotFlightless(entityContext.getEntity())
         ) {
-            switch(state.getValue(FACING).getAxis()) {
-                case X -> cir.setReturnValue(Shapes.box(
-                    X_COLLISION_SHAPE.min(Direction.Axis.X),
-                    X_COLLISION_SHAPE.min(Direction.Axis.Y),
-                    X_COLLISION_SHAPE.min(Direction.Axis.Z),
-                    X_COLLISION_SHAPE.max(Direction.Axis.X),
-                    1,
-                    X_COLLISION_SHAPE.max(Direction.Axis.Z)
-                ));
-                case Z -> cir.setReturnValue(Shapes.box(
-                    Z_COLLISION_SHAPE.min(Direction.Axis.X),
-                    Z_COLLISION_SHAPE.min(Direction.Axis.Y),
-                    Z_COLLISION_SHAPE.min(Direction.Axis.Z),
-                    Z_COLLISION_SHAPE.max(Direction.Axis.X),
-                    1,
-                    Z_COLLISION_SHAPE.max(Direction.Axis.Z)
-                ));
-            }
+            VoxelShape shape = SHAPE_COLLISION.get(state.getValue(FACING).getAxis());
+            cir.setReturnValue(Shapes.box(
+                shape.min(Direction.Axis.X),
+                shape.min(Direction.Axis.Y),
+                shape.min(Direction.Axis.Z),
+                shape.max(Direction.Axis.X),
+                1,
+                shape.max(Direction.Axis.Z)
+            ));
         }
     }
 }

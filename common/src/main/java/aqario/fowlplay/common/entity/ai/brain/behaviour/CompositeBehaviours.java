@@ -12,7 +12,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomSwimTarget;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 
 import java.util.function.Predicate;
 
@@ -108,7 +108,7 @@ public class CompositeBehaviours {
                     .setRadius(64, 24),
                 2
             )
-        ).startCondition(entity -> !BrainUtils.hasMemory(entity, MemoryModuleType.HAS_HUNTING_COOLDOWN));
+        ).startCondition(entity -> !BrainUtil.hasMemory(entity, MemoryModuleType.HAS_HUNTING_COOLDOWN));
     }
 
     public static <E extends FlyingBirdEntity> ExtendedBehaviour<E> tryPerch() {

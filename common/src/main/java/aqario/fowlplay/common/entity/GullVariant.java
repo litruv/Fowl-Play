@@ -8,9 +8,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public record GullVariant(ResourceLocation texture) {
+public record GullVariant(Identifier texture) {
     public static final StreamCodec<RegistryFriendlyByteBuf, Holder<GullVariant>> PACKET_CODEC = ByteBufCodecs.holderRegistry(FowlPlayRegistries.GULL_VARIANT);
     public static final ResourceKey<GullVariant> HERRING = register("herring");
     public static final ResourceKey<GullVariant> RING_BILLED = register("ring_billed");
@@ -18,7 +18,7 @@ public record GullVariant(ResourceLocation texture) {
 
     private static ResourceKey<GullVariant> register(String id) {
         ResourceKey<GullVariant> key = ResourceKey.create(FowlPlayRegistries.GULL_VARIANT, FowlPlay.id(id));
-        ResourceLocation texture = FowlPlay.id("textures/entity/gull/" + key.location().getPath() + "_gull.png");
+        Identifier texture = FowlPlay.id("textures/entity/gull/" + key.identifier().getPath() + "_gull.png");
         PlatformHelper.registerVariant(id, key, () -> new GullVariant(texture));
         return key;
     }

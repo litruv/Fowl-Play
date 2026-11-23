@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.tslat.smartbrainlib.api.core.sensor.EntityFilteringSensor;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.BrainUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -52,16 +52,16 @@ public class AvoidTargetSensor<E extends BirdEntity> extends EntityFilteringSens
     protected void doTick(ServerLevel level, E bird) {
         LivingEntity avoidTarget = this.testForEntity(bird);
         if(avoidTarget != null) {
-            BrainUtils.setMemory(bird, this.getMemory(), avoidTarget);
+            BrainUtil.setMemory(bird, this.getMemory(), avoidTarget);
         }
         else {
-            BrainUtils.clearMemory(bird, this.getMemory());
+            BrainUtil.clearMemory(bird, this.getMemory());
         }
         if(avoidTarget != null && avoidTarget.closerThan(bird, bird.getFleeRange(avoidTarget))) {
-            BrainUtils.setMemory(bird, FowlPlayMemoryTypes.IS_AVOIDING.get(), Unit.INSTANCE);
+            BrainUtil.setMemory(bird, FowlPlayMemoryTypes.IS_AVOIDING.get(), Unit.INSTANCE);
         }
         else {
-            BrainUtils.clearMemory(bird, FowlPlayMemoryTypes.IS_AVOIDING.get());
+            BrainUtil.clearMemory(bird, FowlPlayMemoryTypes.IS_AVOIDING.get());
         }
     }
 }

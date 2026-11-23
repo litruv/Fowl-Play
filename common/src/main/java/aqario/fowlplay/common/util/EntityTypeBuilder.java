@@ -3,7 +3,7 @@ package aqario.fowlplay.common.util;
 import com.google.common.collect.ImmutableSet;
 import dev.architectury.registry.level.entity.EntityAttributeRegistry;
 import dev.architectury.registry.level.entity.SpawnPlacementsRegistry;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.DependantName;
 import net.minecraft.resources.ResourceKey;
@@ -37,9 +37,9 @@ public class EntityTypeBuilder<T extends Entity> {
     private EntityAttachments.Builder attachments = EntityAttachments.builder();
     private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
     private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable = resourceKey -> Optional.of(
-        ResourceKey.create(Registries.LOOT_TABLE, resourceKey.location().withPrefix("entities/"))
+        ResourceKey.create(Registries.LOOT_TABLE, resourceKey.identifier().withPrefix("entities/"))
     );
-    private final DependantName<EntityType<?>, String> descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.location());
+    private final DependantName<EntityType<?>, String> descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.identifier());
     private boolean allowedInPeaceful = true;
     @Nullable
     private Supplier<AttributeSupplier.Builder> attributeBuilder;
@@ -175,7 +175,7 @@ public class EntityTypeBuilder<T extends Entity> {
     @SuppressWarnings("unchecked")
     public EntityType<T> build(ResourceKey<EntityType<?>> entityType) {
         if(this.serialize) {
-            Util.fetchChoiceType(References.ENTITY_TREE, entityType.location().toString());
+            Util.fetchChoiceType(References.ENTITY_TREE, entityType.identifier().toString());
         }
 
         EntityType<T> type = new EntityType<>(
